@@ -8,28 +8,31 @@ enum GameOption {
 }
 
 class Game {
-    List<Intermediary> intermediaries = new List<Intermediary>();
-    byte number_of_intermediaries;
+    private readonly List<Intermediary> _intermediaries = new List<Intermediary>();
+    private byte _number_of_intermediaries;
+    private int _day;
 
     public Game() {
         GetNumberOfIntermediaries();
         CreateANumberOfIntermediariesAndAddToList();
+        _day = 1;
     }
 
     public void Play() {
         while (true) {
-            foreach (var intermediary in intermediaries) {
-                PrintHeader(intermediary);
-                PrintGameMenu();
-                PlayRound();
+            foreach (var intermediary in _intermediaries) {
+                PlayRound(intermediary);
             }
+            _day++;
         }
 
     }
 
-    private void PlayRound() {
+    private void PlayRound(Intermediary intermediary) {
         bool roundFinished = false;
         do {
+            PrintHeader(intermediary, _day);
+            PrintGameMenu();
             var option = GetOption();
             roundFinished = ExecuteSelectedAction(option);
 
@@ -37,11 +40,10 @@ class Game {
 
     }
 
-    private bool ExecuteSelectedAction(GameOption option) {
+    private static bool ExecuteSelectedAction(GameOption option) {
         switch (option) {
             case GameOption.a:
                 Console.WriteLine("Option a selected");
-                Play();
                 return false;
             case GameOption.b:
                 Console.WriteLine("Option  b selected. Runde wird beendet.");
@@ -76,19 +78,19 @@ class Game {
 );
     }
 
-    private static void PrintHeader(Intermediary intermediary) {
-        System.Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName}");
+    private static void PrintHeader(Intermediary intermediary, int day) {
+        System.Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName} | Tag {day}");
     }
 
     private void CreateANumberOfIntermediariesAndAddToList() {
-        for (int i = 1; i <= number_of_intermediaries; i++) {
+        for (int i = 1; i <= _number_of_intermediaries; i++) {
 
             Console.Write($"Name von Zwischenhändler {i}: ");
             string intermediaryName = GetStringFromReadLine("Geben Sie einen gueltigen Namen ein: ");
             Console.Write($"Name von der Firma von {intermediaryName}: ");
             string intermediaryCompanyName = GetStringFromReadLine("Geben Sie eine gueltige Firma ein: ");
 
-            intermediaries.Add(new Intermediary(intermediaryName, intermediaryCompanyName));
+            _intermediaries.Add(new Intermediary(intermediaryName, intermediaryCompanyName));
         }
     }
 
@@ -107,7 +109,7 @@ class Game {
         Console.Write("Wieviel Zwischenhändler nehmen teil?: ");
         while (true) {
             var input = Console.ReadLine();
-            if (String.IsNullOrWhiteSpace(input) || !byte.TryParse(input, out number_of_intermediaries) || number_of_intermediaries == 0) {
+            if (String.IsNullOrWhiteSpace(input) || !byte.TryParse(input, out _number_of_intermediaries) || _number_of_intermediaries == 0) {
                 Console.Write("Geben Sie eine Zahl von 1 - 255: ");
                 continue;
             }
