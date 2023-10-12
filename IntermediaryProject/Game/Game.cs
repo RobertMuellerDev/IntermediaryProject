@@ -1,14 +1,18 @@
-using System.Net;
-
 namespace IntermediaryProject;
 
 enum GameOption {
-    a,
+    // a,
     b
 }
 
 class Game {
     private readonly List<Intermediary> _intermediaries = new List<Intermediary>();
+
+    /*
+    Für beliebig viele habe ich jetzt mal nicht mehr als 255 angenommen,
+    aber das kann natürlich mit short, int oder long
+    und einer kleinen Anpassung der Abfrage beliebig erhöht werden
+    */
     private byte _number_of_intermediaries;
     private int _day;
 
@@ -33,48 +37,53 @@ class Game {
         do {
             PrintHeader(intermediary, _day);
             PrintGameMenu();
-            var option = GetOption();
-            roundFinished = ExecuteSelectedAction(option);
+            var selectedOption = GetOption();
+            roundFinished = ExecuteSelectedAction(selectedOption);
 
         } while (!roundFinished);
 
     }
 
-    private static bool ExecuteSelectedAction(GameOption option) {
-        switch (option) {
-            case GameOption.a:
+    private static bool ExecuteSelectedAction(GameOption selectedOption) {
+        switch (selectedOption) {
+            /* case GameOption.a:
                 Console.WriteLine("Option a selected");
-                return false;
+                return false; */
             case GameOption.b:
-                Console.WriteLine("Option  b selected. Runde wird beendet.");
+                System.Console.WriteLine();
                 return true;
             default:
-                return true;
+                return false;
 
         }
     }
 
     private static GameOption GetOption() {
-        GameOption? option = null;
+        GameOption? selectedOption = null;
         do {
             var input = GetStringFromReadLine("Wählen Sie eine Option aus: ");
-            if (input.ToLower() == "a") {
+            /* if (input.ToLower() == "a") {
                 option = GameOption.a;
-            } else if (input.ToLower() == "b") {
-                option = GameOption.b;
+            } else */
+            if (input.ToLower() == "b") {
+                selectedOption = GameOption.b;
             }
 
-        } while (option is null);
-        return (GameOption)option;
+        } while (selectedOption is null);
+        return (GameOption)selectedOption;
     }
 
     private static void PrintGameMenu() {
         // Bitte Formatierung in verbatim string ignorieren. Das ist für die richtige Darstellung des Textes.
         // Das gefiel mir besser als \n dazwischen.
-        System.Console.WriteLine
+        /* System.Console.WriteLine
 (@"
 {0}) Nochmal
 {1}) Runde beenden", GameOption.a, GameOption.b
+); */
+        System.Console.WriteLine
+(@"
+{0}) Runde beenden", GameOption.b
 );
     }
 
@@ -94,11 +103,11 @@ class Game {
         }
     }
 
-    private static string GetStringFromReadLine(string value) {
+    private static string GetStringFromReadLine(string errorMessageForInvalidInput) {
         while (true) {
             var input = Console.ReadLine();
             if (String.IsNullOrWhiteSpace(input)) {
-                Console.Write(value);
+                Console.Write(errorMessageForInvalidInput);
                 continue;
             }
             return input;

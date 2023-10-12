@@ -18,5 +18,4 @@ public class Intermediary {
         _companyName = companyName;
     }
 
-
 }
