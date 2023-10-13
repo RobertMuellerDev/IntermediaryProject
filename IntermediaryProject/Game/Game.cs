@@ -1,4 +1,5 @@
 using System.Text;
+using ExtensionMethods;
 
 namespace IntermediaryProject;
 
@@ -30,8 +31,13 @@ class Game {
                 PlayRound(intermediary);
             }
             _day++;
+            ChangeIntermediariesOrder();
         }
 
+    }
+    private void ChangeIntermediariesOrder() {
+        var firstElement = _intermediaries.Pop(0);
+        _intermediaries.Add(firstElement);
     }
 
     private void PlayRound(Intermediary intermediary) {
@@ -81,7 +87,7 @@ class Game {
     private static string BuildGameMenuString() {
         StringBuilder stringBuilder = new();
         stringBuilder.AppendLine($"{GameOption.a}) Nochmal");
-        stringBuilder.AppendLine($"{GameOption.b}) Runde beenden");
+        stringBuilder.Append($"{GameOption.b}) Runde beenden");
         return stringBuilder.ToString();
     }
 
