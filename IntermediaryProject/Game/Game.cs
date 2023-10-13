@@ -1,21 +1,10 @@
-using System.Text;
 using ExtensionMethods;
 
 namespace IntermediaryProject;
 
-enum GameOption {
-    a,
-    b
-}
-
 class Game {
     private readonly List<Intermediary> _intermediaries = new List<Intermediary>();
 
-    /*
-    Für beliebig viele habe ich jetzt mal nicht mehr als 255 angenommen,
-    aber das kann natürlich mit short, int oder long
-    und einer kleinen Anpassung der Abfrage beliebig erhöht werden
-    */
     private byte _number_of_intermediaries;
     private int _day;
 
@@ -43,9 +32,9 @@ class Game {
     private void PlayRound(Intermediary intermediary) {
         bool roundFinished = false;
         do {
-            PrintHeader(intermediary, _day);
-            PrintGameMenu();
-            var selectedOption = GetOption();
+            UI.PrintHeader(intermediary, _day);
+            UI.PrintGameMenu();
+            var selectedOption = AskUserForAction();
             roundFinished = ExecuteSelectedAction(selectedOption);
 
         } while (!roundFinished);
@@ -55,7 +44,7 @@ class Game {
     private static bool ExecuteSelectedAction(GameOption selectedOption) {
         switch (selectedOption) {
             case GameOption.a:
-                Console.WriteLine("Option a selected");
+                Console.WriteLine();
                 return false;
             case GameOption.b:
                 Console.WriteLine();
@@ -66,7 +55,7 @@ class Game {
         }
     }
 
-    private static GameOption GetOption() {
+    private static GameOption AskUserForAction() {
         GameOption? selectedOption = null;
         do {
             var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
@@ -80,21 +69,6 @@ class Game {
         return (GameOption)selectedOption;
     }
 
-    private static void PrintGameMenu() {
-        Console.WriteLine(BuildGameMenuString());
-    }
-
-    private static string BuildGameMenuString() {
-        StringBuilder stringBuilder = new();
-        stringBuilder.AppendLine($"{GameOption.a}) Nochmal");
-        stringBuilder.Append($"{GameOption.b}) Runde beenden");
-        return stringBuilder.ToString();
-    }
-
-    private static void PrintHeader(Intermediary intermediary, int day) {
-        Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName} | Tag {day}");
-    }
-
     private void CreateIntermediariesAndAddToList() {
         for (int i = 1; i <= _number_of_intermediaries; i++) {
 
@@ -102,9 +76,30 @@ class Game {
             string intermediaryName = ReadAndValidateStringFromReadLine("Geben Sie einen gueltigen Namen ein: ");
             Console.Write($"Name von der Firma von {intermediaryName}: ");
             string intermediaryCompanyName = ReadAndValidateStringFromReadLine("Geben Sie eine gueltige Firma ein: ");
-
-            _intermediaries.Add(new Intermediary(intermediaryName, intermediaryCompanyName));
+            DifficultyLevel difficultyLevel = AskUserForDifficultyLevel();
+            _intermediaries.Add(new Intermediary(intermediaryName, intermediaryCompanyName, (int)difficultyLevel));
         }
+    }
+
+    private static DifficultyLevel AskUserForDifficultyLevel() {
+        Console.WriteLine($"Wählen Sie einen Schwierigkeitsgrad aus: ");
+        UI.PrintDifficultyLevelChoice();
+        return GetValidatedDifficultyLevelFromInput();
+    }
+
+    private static DifficultyLevel GetValidatedDifficultyLevelFromInput() {
+        DifficultyLevel? difficultyLevel = null;
+        do {
+            string difficultyLevelInput = ReadAndValidateStringFromReadLine("Geben Sie einen gueltigen Schwierigkeitsgrad ein: ");
+            if (difficultyLevelInput.ToLower() == "a")
+                difficultyLevel = DifficultyLevel.Einfach;
+            else if (difficultyLevelInput.ToLower() == "b")
+                difficultyLevel = DifficultyLevel.Normal;
+            else if (difficultyLevelInput.ToLower() == "c")
+                difficultyLevel = DifficultyLevel.Schwer;
+        } while (difficultyLevel is null);
+
+        return (DifficultyLevel)difficultyLevel;
     }
 
     private static string ReadAndValidateStringFromReadLine(string errorMessageForInvalidInput) {

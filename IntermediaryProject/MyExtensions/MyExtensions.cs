@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ExtensionMethods {
     public static class MyExtensions {
         /// <summary>
