@@ -1,7 +1,9 @@
+using System.Text;
+
 namespace IntermediaryProject;
 
 enum GameOption {
-    // a,
+    a,
     b
 }
 
@@ -17,8 +19,8 @@ class Game {
     private int _day;
 
     public Game() {
-        GetNumberOfIntermediaries();
-        CreateANumberOfIntermediariesAndAddToList();
+        AskForNumberOfIntermediaries();
+        CreateIntermediariesAndAddToList();
         _day = 1;
     }
 
@@ -46,11 +48,11 @@ class Game {
 
     private static bool ExecuteSelectedAction(GameOption selectedOption) {
         switch (selectedOption) {
-            /* case GameOption.a:
+            case GameOption.a:
                 Console.WriteLine("Option a selected");
-                return false; */
+                return false;
             case GameOption.b:
-                System.Console.WriteLine();
+                Console.WriteLine();
                 return true;
             default:
                 return false;
@@ -61,11 +63,10 @@ class Game {
     private static GameOption GetOption() {
         GameOption? selectedOption = null;
         do {
-            var input = GetStringFromReadLine("Wählen Sie eine Option aus: ");
-            /* if (input.ToLower() == "a") {
-                option = GameOption.a;
-            } else */
-            if (input.ToLower() == "b") {
+            var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
+            if (input.ToLower() == "a") {
+                selectedOption = GameOption.a;
+            } else if (input.ToLower() == "b") {
                 selectedOption = GameOption.b;
             }
 
@@ -74,36 +75,33 @@ class Game {
     }
 
     private static void PrintGameMenu() {
-        // Bitte Formatierung in verbatim string ignorieren. Das ist für die richtige Darstellung des Textes.
-        // Das gefiel mir besser als \n dazwischen.
-        /* System.Console.WriteLine
-(@"
-{0}) Nochmal
-{1}) Runde beenden", GameOption.a, GameOption.b
-); */
-        System.Console.WriteLine
-(@"
-{0}) Runde beenden", GameOption.b
-);
+        Console.WriteLine(BuildGameMenuString());
+    }
+
+    private static string BuildGameMenuString() {
+        StringBuilder stringBuilder = new();
+        stringBuilder.AppendLine($"{GameOption.a}) Nochmal");
+        stringBuilder.AppendLine($"{GameOption.b}) Runde beenden");
+        return stringBuilder.ToString();
     }
 
     private static void PrintHeader(Intermediary intermediary, int day) {
-        System.Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName} | Tag {day}");
+        Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName} | Tag {day}");
     }
 
-    private void CreateANumberOfIntermediariesAndAddToList() {
+    private void CreateIntermediariesAndAddToList() {
         for (int i = 1; i <= _number_of_intermediaries; i++) {
 
             Console.Write($"Name von Zwischenhändler {i}: ");
-            string intermediaryName = GetStringFromReadLine("Geben Sie einen gueltigen Namen ein: ");
+            string intermediaryName = ReadAndValidateStringFromReadLine("Geben Sie einen gueltigen Namen ein: ");
             Console.Write($"Name von der Firma von {intermediaryName}: ");
-            string intermediaryCompanyName = GetStringFromReadLine("Geben Sie eine gueltige Firma ein: ");
+            string intermediaryCompanyName = ReadAndValidateStringFromReadLine("Geben Sie eine gueltige Firma ein: ");
 
             _intermediaries.Add(new Intermediary(intermediaryName, intermediaryCompanyName));
         }
     }
 
-    private static string GetStringFromReadLine(string errorMessageForInvalidInput) {
+    private static string ReadAndValidateStringFromReadLine(string errorMessageForInvalidInput) {
         while (true) {
             var input = Console.ReadLine();
             if (String.IsNullOrWhiteSpace(input)) {
@@ -114,7 +112,7 @@ class Game {
         }
     }
 
-    private void GetNumberOfIntermediaries() {
+    private void AskForNumberOfIntermediaries() {
         Console.Write("Wieviel Zwischenhändler nehmen teil?: ");
         while (true) {
             var input = Console.ReadLine();
