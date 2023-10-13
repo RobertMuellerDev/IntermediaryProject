@@ -8,12 +8,10 @@ namespace ExtensionMethods {
         /// </summary>
         /// <param name="indexToPop">index of the element to remove</param>
         /// <returns>The removed element.</returns>
-        public static T Pop<T>(this List<T> list, int indexToPop = -1) {
-            if (indexToPop < 0) {
-                indexToPop = list.Count - 1;
-            }
-            var element = list[indexToPop];
-            list.RemoveAt(indexToPop);
+        public static T Pop<T>(this List<T> list, int? indexToPop = null) {
+            indexToPop ??= (list.Count - 1);
+            var element = list[(int)indexToPop];
+            list.RemoveAt((int)indexToPop);
             return element;
 
         }
