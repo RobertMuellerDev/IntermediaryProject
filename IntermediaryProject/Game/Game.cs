@@ -1,4 +1,6 @@
 using ExtensionMethods;
+using IntermediaryProject.Products;
+using IntermediaryProject.Utils;
 
 namespace IntermediaryProject;
 
@@ -7,6 +9,8 @@ class Game {
 
     private byte _number_of_intermediaries;
     private int _day;
+
+    private static readonly List<Product> _availableProducts = ImportAvailableProducts();
 
     public Game() {
         AskForNumberOfIntermediaries();
@@ -22,7 +26,6 @@ class Game {
             _day++;
             ChangeIntermediariesOrder();
         }
-
     }
     private void ChangeIntermediariesOrder() {
         var firstElement = _intermediaries.Pop(0);
@@ -43,11 +46,10 @@ class Game {
 
     private static bool ExecuteSelectedAction(GameOption selectedOption) {
         switch (selectedOption) {
-            case GameOption.a:
-                Console.WriteLine();
+            case GameOption.Shopping:
+                OpenShop();
                 return false;
-            case GameOption.b:
-                Console.WriteLine();
+            case GameOption.EndRound:
                 return true;
             default:
                 return false;
@@ -55,14 +57,34 @@ class Game {
         }
     }
 
+    private static void OpenShop() {
+        UI.PrintShop(_availableProducts);
+
+        ShoppingOption shoppingAction = AskUserForShoppingAction();
+    }
+
+    private static ShoppingOption AskUserForShoppingAction() {
+        ShoppingOption? shoppingAction = null;
+        do {
+            var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
+            foreach (var gameOption in Enum.GetValues(typeof(ShoppingOption)).Cast<ShoppingOption>()) {
+                if (input.ToLower()[0] == (char)(gameOption)) {
+                    shoppingAction = gameOption;
+                }
+            }
+
+        } while (shoppingAction is null);
+        return (ShoppingOption)shoppingAction;
+    }
+
     private static GameOption AskUserForAction() {
         GameOption? selectedOption = null;
         do {
             var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
-            if (input.ToLower() == "a") {
-                selectedOption = GameOption.a;
-            } else if (input.ToLower() == "b") {
-                selectedOption = GameOption.b;
+            foreach (var gameOption in Enum.GetValues(typeof(GameOption)).Cast<GameOption>()) {
+                if (input.ToLower()[0] == (char)(gameOption)) {
+                    selectedOption = gameOption;
+                }
             }
 
         } while (selectedOption is null);
@@ -82,6 +104,7 @@ class Game {
     }
 
     private static DifficultyLevel AskUserForDifficultyLevel() {
+        Console.WriteLine();
         Console.WriteLine($"Wählen Sie einen Schwierigkeitsgrad aus: ");
         UI.PrintDifficultyLevelChoice();
         return GetValidatedDifficultyLevelFromInput();
@@ -123,6 +146,13 @@ class Game {
             }
             break;
         }
+
+    }
+
+    private static List<Product> ImportAvailableProducts() {
+        var ymlContent = Util.ReadFileToString("produkte.yml");
+        IEnumerable<string> products = Product.GetEnumerableOfIndividualProductsFromYmlContent(ymlContent);
+        return Product.ConvertProductStringEnumerableToProductList(products);
 
     }
 }
