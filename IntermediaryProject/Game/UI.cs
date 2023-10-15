@@ -17,7 +17,7 @@ namespace IntermediaryProject {
             return stringBuilder.ToString();
         }
         public static void PrintHeader(Intermediary intermediary, int day) {
-            Console.Clear();
+            Console.WriteLine();
             Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName} | ${intermediary.Capital:n0} | Tag {day}");
         }
 
