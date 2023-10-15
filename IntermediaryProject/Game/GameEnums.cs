@@ -24,7 +24,7 @@ namespace IntermediaryProject {
     }
     public enum ShoppingOption {
         [EnumOrder(0)]
-        Back = 122,
+        GoBack = 122,
 
     }
 }

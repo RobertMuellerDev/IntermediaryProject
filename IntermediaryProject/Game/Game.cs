@@ -4,38 +4,38 @@ using IntermediaryProject.Utils;
 
 namespace IntermediaryProject;
 
-class Game {
-    private readonly List<Intermediary> _intermediaries = new List<Intermediary>();
+static class Game {
+    private static readonly List<Intermediary> _intermediaries = new List<Intermediary>();
 
-    private byte _number_of_intermediaries;
-    private int _day;
+    private static byte _number_of_intermediaries;
+    private static int _day;
 
     private static readonly List<Product> _availableProducts = ImportAvailableProducts();
 
-    public Game() {
+    private static Intermediary? _currentIntermediary;
+
+    public static void Play() {
         AskForNumberOfIntermediaries();
         CreateIntermediariesAndAddToList();
         _day = 1;
-    }
-
-    public void Play() {
         while (true) {
             foreach (var intermediary in _intermediaries) {
-                PlayRound(intermediary);
+                _currentIntermediary = intermediary;
+                PlayRound();
             }
             _day++;
             ChangeIntermediariesOrder();
         }
     }
-    private void ChangeIntermediariesOrder() {
+    private static void ChangeIntermediariesOrder() {
         var firstElement = _intermediaries.Pop(0);
         _intermediaries.Add(firstElement);
     }
 
-    private void PlayRound(Intermediary intermediary) {
+    private static void PlayRound() {
         bool roundFinished = false;
         do {
-            UI.PrintHeader(intermediary, _day);
+            UI.PrintHeader(_currentIntermediary, _day);
             UI.PrintGameMenu();
             var selectedOption = AskUserForAction();
             roundFinished = ExecuteSelectedAction(selectedOption);
@@ -58,23 +58,45 @@ class Game {
     }
 
     private static void OpenShop() {
-        UI.PrintShop(_availableProducts);
+        do {
+            UI.PrintShop(_availableProducts);
 
-        ShoppingOption shoppingAction = AskUserForShoppingAction();
+            var input = AskUserForShoppingAction();
+            if (input.ToLower()[0] == 'z') {
+                break;
+            }
+        } while (true);
     }
 
-    private static ShoppingOption AskUserForShoppingAction() {
-        ShoppingOption? shoppingAction = null;
-        do {
-            var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
-            foreach (var gameOption in Enum.GetValues(typeof(ShoppingOption)).Cast<ShoppingOption>()) {
-                if (input.ToLower()[0] == (char)(gameOption)) {
-                    shoppingAction = gameOption;
-                }
-            }
+    private static string AskUserForShoppingAction() {
+        var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
 
-        } while (shoppingAction is null);
-        return (ShoppingOption)shoppingAction;
+        if (byte.TryParse(input, out byte parsedId) && parsedId > 0 && parsedId <= _availableProducts.Count) {
+            BuySelectedProduct(parsedId);
+        }
+        return input;
+    }
+
+    private static void BuySelectedProduct(byte parsedId) {
+        Console.Write($"Wieviele {_availableProducts[parsedId - 1].Name}n möchten Sie kaufen? ");
+        do {
+            var quantity = ReadAndValidateStringFromReadLine("Geben Sie eine gültige Anzahl ein: ");
+            if (int.TryParse(quantity, out int parsedQuantity)) {
+                if (parsedQuantity > 0) {
+                    BuyProduct(_availableProducts[parsedId - 1], parsedQuantity);
+                }
+
+                break;
+            }
+        } while (true);
+    }
+
+    private static void BuyProduct(Product product, int quantity) {
+        try {
+            _currentIntermediary.Buy(product, quantity);
+        } catch (InvalidOperationException e) {
+            Console.WriteLine(e.Message);
+        }
     }
 
     private static GameOption AskUserForAction() {
@@ -91,13 +113,13 @@ class Game {
         return (GameOption)selectedOption;
     }
 
-    private void CreateIntermediariesAndAddToList() {
+    private static void CreateIntermediariesAndAddToList() {
         for (int i = 1; i <= _number_of_intermediaries; i++) {
 
             Console.Write($"Name von Zwischenhändler {i}: ");
-            string intermediaryName = ReadAndValidateStringFromReadLine("Geben Sie einen gueltigen Namen ein: ");
+            string intermediaryName = ReadAndValidateStringFromReadLine("Geben Sie einen gültigen Namen ein: ");
             Console.Write($"Name von der Firma von {intermediaryName}: ");
-            string intermediaryCompanyName = ReadAndValidateStringFromReadLine("Geben Sie eine gueltige Firma ein: ");
+            string intermediaryCompanyName = ReadAndValidateStringFromReadLine("Geben Sie eine gültige Firma ein: ");
             DifficultyLevel difficultyLevel = AskUserForDifficultyLevel();
             _intermediaries.Add(new Intermediary(intermediaryName, intermediaryCompanyName, (int)difficultyLevel));
         }
@@ -113,7 +135,7 @@ class Game {
     private static DifficultyLevel GetValidatedDifficultyLevelFromInput() {
         DifficultyLevel? difficultyLevel = null;
         do {
-            string difficultyLevelInput = ReadAndValidateStringFromReadLine("Geben Sie einen gueltigen Schwierigkeitsgrad ein: ");
+            string difficultyLevelInput = ReadAndValidateStringFromReadLine("Geben Sie einen gültigen Schwierigkeitsgrad ein: ");
             if (difficultyLevelInput.ToLower() == "a")
                 difficultyLevel = DifficultyLevel.Einfach;
             else if (difficultyLevelInput.ToLower() == "b")
@@ -136,7 +158,7 @@ class Game {
         }
     }
 
-    private void AskForNumberOfIntermediaries() {
+    private static void AskForNumberOfIntermediaries() {
         Console.Write("Wieviel Zwischenhändler nehmen teil?: ");
         while (true) {
             var input = Console.ReadLine();
