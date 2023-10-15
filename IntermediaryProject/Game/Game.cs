@@ -10,14 +10,22 @@ static class Game {
     private static byte _number_of_intermediaries;
     private static int _day;
 
-    private static readonly List<Product> _availableProducts = ImportAvailableProducts();
+    private static readonly List<Product> _availableProducts;
+    private static Intermediary _currentIntermediary;
 
-    private static Intermediary? _currentIntermediary;
+    public static List<Product> ProductList {
+        get { return _availableProducts; }
+    }
 
-    public static void Play() {
+    static Game() {
+        _availableProducts = ImportAvailableProducts();
         AskForNumberOfIntermediaries();
         CreateIntermediariesAndAddToList();
         _day = 1;
+        _currentIntermediary = _intermediaries[0];
+    }
+
+    public static void Play() {
         while (true) {
             foreach (var intermediary in _intermediaries) {
                 _currentIntermediary = intermediary;
@@ -47,7 +55,10 @@ static class Game {
     private static bool ExecuteSelectedAction(GameOption selectedOption) {
         switch (selectedOption) {
             case GameOption.Shopping:
-                OpenShop();
+                StartShopping();
+                return false;
+            case GameOption.Selling:
+                StartSelling();
                 return false;
             case GameOption.EndRound:
                 return true;
@@ -57,7 +68,48 @@ static class Game {
         }
     }
 
-    private static void OpenShop() {
+    private static void StartSelling() {
+        do {
+            UI.PrintItemsToSell(_currentIntermediary);
+            var input = AskUserForSellingAction();
+            if (input.ToLower()[0] == 'z') {
+                break;
+            }
+        } while (true);
+    }
+
+    private static string AskUserForSellingAction() {
+        var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
+
+        if (byte.TryParse(input, out byte parsedId) && parsedId > 0 && _currentIntermediary.Inventory.ContainsKey(parsedId)) {
+            SellSelectedProduct(parsedId);
+        }
+        return input;
+    }
+
+    private static void SellSelectedProduct(byte parsedId) {
+        Console.Write($"Wieviele {_availableProducts[parsedId - 1].Name}n möchten Sie verkaufen? ");
+        do {
+            var quantity = ReadAndValidateStringFromReadLine("Geben Sie eine gültige Anzahl ein: ");
+            if (int.TryParse(quantity, out int parsedQuantity)) {
+                if (parsedQuantity > 0) {
+                    SellProduct(_availableProducts[parsedId - 1], parsedQuantity);
+                }
+
+                break;
+            }
+        } while (true);
+    }
+
+    private static void SellProduct(Product product, int quantity) {
+        try {
+            _currentIntermediary.Sell(product, quantity);
+        } catch (ArgumentOutOfRangeException e) {
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    private static void StartShopping() {
         do {
             UI.PrintShop(_availableProducts);
 

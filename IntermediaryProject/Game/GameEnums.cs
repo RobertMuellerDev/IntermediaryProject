@@ -20,11 +20,7 @@ namespace IntermediaryProject {
         [EnumOrder(0)]
         Shopping = 101,
         [EnumOrder(1)]
+        Selling = 118,
         EndRound = 98,
-    }
-    public enum ShoppingOption {
-        [EnumOrder(0)]
-        GoBack = 122,
-
     }
 }

@@ -36,6 +36,9 @@ namespace IntermediaryProject.Products {
         public override string ToString() {
             return $"{_id}) {_name} ({_durability} Tag{(_durability > 1 ? "e" : "")}) ${_price}/Stück";
         }
+        public string ToSellingString(int quantity) {
+            return $"{_id}) {_name} ({quantity}) ${CalculateSellingPrice()}/Stück";
+        }
 
         public static List<Product> ConvertProductStringEnumerableToProductList(IEnumerable<string> products) {
             var availableProducts = new List<Product>();
@@ -74,6 +77,10 @@ namespace IntermediaryProject.Products {
 
         public static IEnumerable<string> GetEnumerableOfIndividualProductsFromYmlContent(string ymlContent) {
             return ymlContent.Split('-').Where(arrayElement => !string.IsNullOrEmpty(arrayElement));
+        }
+
+        public int CalculateSellingPrice() {
+            return (int)(Math.Ceiling(_price * 0.8));
         }
     }
 }

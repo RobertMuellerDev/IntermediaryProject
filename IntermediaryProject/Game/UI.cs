@@ -47,10 +47,32 @@ namespace IntermediaryProject {
             foreach (var product in availableProducts) {
                 stringBuilder.AppendLine(product.ToString());
             }
-            foreach (var shoppingOption in Enum.GetValues(typeof(ShoppingOption)).Cast<ShoppingOption>().Reverse()) {
-                stringBuilder.AppendLine($"\n{(char)(shoppingOption)}) {shoppingOption}");
-            }
+            AppendTradingOptions(stringBuilder);
             return stringBuilder.ToString();
+        }
+
+        private static void AppendTradingOptions(StringBuilder stringBuilder) {
+            stringBuilder.AppendLine($"\nz) Zurück");
+        }
+
+        internal static void PrintItemsToSell(Intermediary intermediary) {
+            Console.WriteLine();
+            Console.Write(BuildSellingMenuString(intermediary));
+        }
+
+        private static string BuildSellingMenuString(Intermediary intermediary) {
+            StringBuilder stringBuilder = new();
+            stringBuilder.AppendLine("Produkte im Besitz:");
+
+            var sellableProducts = Game.ProductList.Where(product => intermediary.Inventory.ContainsKey(product.Id));
+            foreach (var sellableProduct in sellableProducts) {
+                int quantity = intermediary.Inventory[sellableProduct.Id];
+                stringBuilder.AppendLine(sellableProduct.ToSellingString(quantity));
+            }
+            AppendTradingOptions(stringBuilder);
+
+            return stringBuilder.ToString();
+
         }
     }
 }

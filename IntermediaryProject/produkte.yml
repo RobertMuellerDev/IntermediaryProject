@@ -4,3 +4,6 @@ baseprice: 5
 - name: Aprikose
 durability: 4
 baseprice: 20
+- name: Zitrone
+durability: 12
+baseprice: 12
