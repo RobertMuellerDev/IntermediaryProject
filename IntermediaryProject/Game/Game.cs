@@ -103,7 +103,7 @@ static class Game {
 
     private static void SellProduct(Product product, int quantity) {
         try {
-            _currentIntermediary.Sell(product, quantity);
+            _currentIntermediary.SellProducts(product, quantity);
         } catch (ArgumentOutOfRangeException e) {
             Console.WriteLine(e.Message);
         }
@@ -145,7 +145,7 @@ static class Game {
 
     private static void BuyProduct(Product product, int quantity) {
         try {
-            _currentIntermediary.Buy(product, quantity);
+            _currentIntermediary.BuyProducts(product, quantity);
         } catch (InvalidOperationException e) {
             Console.WriteLine(e.Message);
         }

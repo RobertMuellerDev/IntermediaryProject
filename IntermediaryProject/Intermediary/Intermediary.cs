@@ -31,7 +31,7 @@ public class Intermediary {
         _capital = startingCapital;
     }
 
-    internal void Buy(Product product, int quantity) {
+    internal void BuyProducts(Product product, int quantity) {
         if (_capital < (product.Price * quantity)) {
             throw new InvalidOperationException($"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
         }
@@ -43,14 +43,18 @@ public class Intermediary {
         }
     }
 
-    internal void Sell(Product product, int quantity) {
+    internal void SellProducts(Product product, int quantity) {
         if (!_inventory.ContainsKey(product.Id)) {
             throw new ArgumentOutOfRangeException(nameof(product.Id), "Dieses Produkt hat der Haendler nicht auf Lager!");
         } else if (_inventory[product.Id] < quantity) {
             throw new ArgumentOutOfRangeException(nameof(quantity), "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!");
         }
         _capital += product.CalculateSellingPrice() * quantity;
-        _inventory[product.Id] -= quantity;
+        if (_inventory[product.Id] == quantity) {
+            _inventory.Remove(product.Id);
+        } else {
+            _inventory[product.Id] -= quantity;
+        }
     }
 
 }
