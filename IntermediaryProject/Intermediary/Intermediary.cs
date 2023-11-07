@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 using IntermediaryProject.Products;
 
 namespace IntermediaryProject;
@@ -8,6 +9,12 @@ public class Intermediary {
     private readonly string _companyName;
     private int _capital;
     private readonly Dictionary<int, int> _inventory = new Dictionary<int, int>();
+    private int _storageCapacity;
+    private int _storageUtilization;
+
+    private int _availableStorageCapacity {
+        get { return _storageCapacity - _storageUtilization; }
+    }
 
     public int Capital {
         get { return _capital; }
@@ -25,17 +32,30 @@ public class Intermediary {
         get { return _inventory; }
     }
 
+    public int StorageCapacity {
+        get { return _storageCapacity; }
+    }
+
+    public int StorageUtilization {
+        get { return _storageUtilization; }
+    }
+
     public Intermediary(string name, string companyName, int startingCapital) {
         _name = name;
         _companyName = companyName;
         _capital = startingCapital;
+        _storageCapacity = 100;
+        _storageUtilization = 0;
     }
 
     internal void BuyProducts(Product product, int quantity) {
         if (_capital < (product.Price * quantity)) {
             throw new InvalidOperationException($"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
+        } else if (quantity > _availableStorageCapacity) {
+            throw new InvalidOperationException($"Es ist nicht genug Lagerkapazität vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
         }
         _capital -= product.Price * quantity;
+        _storageUtilization += quantity;
         if (_inventory.ContainsKey(product.Id)) {
             _inventory[product.Id] += quantity;
         } else {
@@ -50,6 +70,7 @@ public class Intermediary {
             throw new ArgumentOutOfRangeException(nameof(quantity), "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!");
         }
         _capital += product.CalculateSellingPrice() * quantity;
+        _storageUtilization -= quantity;
         if (_inventory[product.Id] == quantity) {
             _inventory.Remove(product.Id);
         } else {

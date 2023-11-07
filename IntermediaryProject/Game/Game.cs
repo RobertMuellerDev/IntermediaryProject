@@ -20,7 +20,7 @@ static class Game {
     static Game() {
         _availableProducts = ImportAvailableProducts();
         AskForNumberOfIntermediaries();
-        CreateIntermediariesAndAddToList();
+        CreateAndSaveIntermediaries();
         _day = 1;
         _currentIntermediary = _intermediaries[0];
     }
@@ -44,7 +44,7 @@ static class Game {
         bool roundFinished = false;
         do {
             UI.PrintHeader(_currentIntermediary, _day);
-            UI.PrintGameMenu();
+            UI.PrintGameMenuOptions();
             var selectedOption = AskUserForAction();
             roundFinished = ExecuteSelectedAction(selectedOption);
 
@@ -165,7 +165,7 @@ static class Game {
         return (GameOption)selectedOption;
     }
 
-    private static void CreateIntermediariesAndAddToList() {
+    private static void CreateAndSaveIntermediaries() {
         for (int i = 1; i <= _number_of_intermediaries; i++) {
 
             Console.Write($"Name von Zwischenhändler {i}: ");

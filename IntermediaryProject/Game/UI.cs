@@ -5,11 +5,11 @@ using IntermediaryProject.Utils;
 namespace IntermediaryProject {
     public static class UI {
 
-        public static void PrintGameMenu() {
-            Console.WriteLine(BuildGameMenuString());
+        public static void PrintGameMenuOptions() {
+            Console.WriteLine(BuildGameMenuOptionsString());
         }
 
-        private static string BuildGameMenuString() {
+        private static string BuildGameMenuOptionsString() {
             StringBuilder stringBuilder = new();
             foreach (var gameOption in Enums.ToList<GameOption>()) {
                 stringBuilder.Append($"\n{(char)(gameOption)}) {Util.GameOptionEnumDisplayNameMapping(gameOption)}");
@@ -18,7 +18,12 @@ namespace IntermediaryProject {
         }
         public static void PrintHeader(Intermediary intermediary, int day) {
             Console.WriteLine();
-            Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName} | ${intermediary.Capital:n0} | Tag {day}");
+            Console.Write($"{intermediary.Name} von {intermediary.CompanyName} ");
+            Console.Write($"| ${intermediary.Capital:n0} ");
+            Console.Write($"| Lager: {intermediary.StorageUtilization}/{intermediary.StorageCapacity} ");
+            Console.WriteLine($"| Tag {day}");
+
+            // Console.WriteLine($"{intermediary.Name} von {intermediary.CompanyName} | ${intermediary.Capital:n0} | Lager: {intermediary.StorageUtilization}/{intermediary.StorageCapacity} | Tag {day}");
         }
 
         public static void PrintDifficultyLevelChoice() {
