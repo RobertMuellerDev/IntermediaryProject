@@ -21,6 +21,8 @@ namespace IntermediaryProject {
         Shopping = 101,
         [EnumOrder(1)]
         Selling = 118,
+        [EnumOrder(2)]
+        Storage = 108,
         EndRound = 98,
     }
 }

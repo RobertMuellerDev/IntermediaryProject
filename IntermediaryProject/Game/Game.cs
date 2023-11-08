@@ -22,12 +22,12 @@ static class Game {
         _availableProducts = ImportAvailableProducts();
         AskForNumberOfIntermediaries();
         CreateAndSaveIntermediaries();
-        _day = 0;
+        _day = 1;
         _currentIntermediary = _intermediaries[0];
+        ExecuteProductChangeDayOperations();
     }
 
     public static void Play() {
-        ChangeOfDay();
         while (true) {
             foreach (var intermediary in _intermediaries) {
                 _currentIntermediary = intermediary;
@@ -75,12 +75,32 @@ static class Game {
             case GameOption.Selling:
                 StartSelling();
                 return false;
+            case GameOption.Storage:
+                StartStorageIncrease();
+                return false;
             case GameOption.EndRound:
                 return true;
             default:
                 return false;
 
         }
+    }
+
+    private static void StartStorageIncrease() {
+        Console.Write($"Um wieviel soll die Lagerkapazität vergrößert werden? ");
+        do {
+            var size = ReadAndValidateStringFromReadLine("Geben Sie eine gültige Zahl ein: ");
+            if (int.TryParse(size, out int parsedSize)) {
+                if (parsedSize > 0) {
+                    try {
+                        _currentIntermediary.IncreaseStorage(parsedSize);
+                    } catch (ArgumentOutOfRangeException e) {
+                        System.Console.WriteLine(e.Message);
+                    }
+                }
+                break;
+            }
+        } while (true);
     }
 
     private static void StartSelling() {

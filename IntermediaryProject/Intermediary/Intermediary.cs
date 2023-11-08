@@ -8,6 +8,7 @@ public class Intermediary {
 
     private readonly string _name;
     private readonly string _companyName;
+    private static readonly int _storagePricePerUnit = 50;
     private int _capital;
     private readonly Dictionary<int, int> _inventory = new Dictionary<int, int>();
     private int _storageCapacity;
@@ -66,7 +67,7 @@ public class Intermediary {
 
     internal void SellProducts(Product product, int quantity) {
         if (!_inventory.ContainsKey(product.Id)) {
-            throw new ArgumentOutOfRangeException(nameof(product.Id), "Dieses Produkt hat der Haendler nicht auf Lager!");
+            throw new ArgumentOutOfRangeException(nameof(product.Id), "Dieses Produkt hat der Händler nicht auf Lager!");
         } else if (_inventory[product.Id] < quantity) {
             throw new ArgumentOutOfRangeException(nameof(quantity), "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!");
         }
@@ -79,4 +80,12 @@ public class Intermediary {
         }
     }
 
+    internal void IncreaseStorage(int storageExpansionSize) {
+        if (_capital < (_storagePricePerUnit * storageExpansionSize)) {
+            throw new ArgumentOutOfRangeException(nameof(storageExpansionSize),
+            $"Es ist nicht genug Kapital vorhanden, um {storageExpansionSize:n0} Lagereinheiten zu kaufen!");
+        }
+        _capital -= _storagePricePerUnit * storageExpansionSize;
+        _storageCapacity += storageExpansionSize;
+    }
 }

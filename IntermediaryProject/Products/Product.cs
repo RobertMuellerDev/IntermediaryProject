@@ -105,22 +105,22 @@ namespace IntermediaryProject.Products {
         }
 
         public void CalculatePurchasePrice() {
-            int priceDevelopment;
+            int changeInPercent;
             if (Availability < (_maxAvailability * 0.25)) {
-                priceDevelopment = s_rnd.Next(-10, 31);
+                changeInPercent = s_rnd.Next(-10, 31);
             } else if (Availability > (_maxAvailability * 0.25) && Availability < (_maxAvailability * 0.8)) {
-                priceDevelopment = s_rnd.Next(-5, 6);
+                changeInPercent = s_rnd.Next(-5, 6);
             } else {
-                priceDevelopment = s_rnd.Next(-10, 7);
+                changeInPercent = s_rnd.Next(-10, 7);
             }
-            Price += (int)Math.Ceiling(priceDevelopment / 100.0 * _basePrice);
+            var priceChange = changeInPercent / 100.0 * _basePrice;
+            Price += priceChange < 0 ? (int)Math.Floor(priceChange) : (int)Math.Ceiling(priceChange);
         }
 
         public void ReduceAvailabilityWhenBuying(int quantity) {
             if (Availability - quantity < 0) {
                 throw new ProductNotAvailableException("Es kann nicht mehr von einem Produkt gekauft werden, als verfügbar ist.");
             }
-
             Availability -= quantity;
         }
 
@@ -141,7 +141,6 @@ namespace IntermediaryProject.Products {
                         Console.WriteLine(e.Message);
                         throw;
                     }
-
                     currentMatch = currentMatch.NextMatch();
                 }
             }

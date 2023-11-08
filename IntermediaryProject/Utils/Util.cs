@@ -23,6 +23,8 @@ namespace IntermediaryProject.Utils {
                     return "Verkaufen";
                 case GameOption.EndRound:
                     return "Runde beenden";
+                case GameOption.Storage:
+                    return "Lager vergrößern";
                 default:
                     throw new Exception($"No GameOption mapping for {gameOption} available!");
             }
