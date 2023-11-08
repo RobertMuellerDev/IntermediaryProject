@@ -4,7 +4,6 @@ using IntermediaryProject.Utils;
 
 namespace IntermediaryProject {
     public static class UI {
-
         public static void PrintGameMenuOptions() {
             Console.WriteLine(BuildGameMenuOptionsString());
         }
@@ -33,8 +32,12 @@ namespace IntermediaryProject {
         private static string BuildDifficultyLevelString() {
             StringBuilder stringBuilder = new();
             byte charCounter = 0;
-            foreach (var difficultyLevel in Enum.GetValues(typeof(DifficultyLevel)).Cast<DifficultyLevel>().Reverse()) {
-                stringBuilder.AppendLine($"{(char)(charCounter + 97)}) Schwierigkeitsgrad: {difficultyLevel} -> Startkapital: ${(int)difficultyLevel:n0}");
+            foreach (var difficultyLevel in Enum.GetValues(typeof(DifficultyLevel))
+                                                .Cast<DifficultyLevel>()
+                                                .Reverse()) {
+                stringBuilder.AppendLine(
+                                         $"{(char)(charCounter + 97)}) Schwierigkeitsgrad: {difficultyLevel} -> Startkapital: ${(int)difficultyLevel:n0}"
+                                        );
                 charCounter++;
             }
             return stringBuilder.ToString();
@@ -71,13 +74,12 @@ namespace IntermediaryProject {
 
             var sellableProducts = Game.ProductList.Where(product => intermediary.Inventory.ContainsKey(product.Id));
             foreach (var sellableProduct in sellableProducts) {
-                int quantity = intermediary.Inventory[sellableProduct.Id];
+                var quantity = intermediary.Inventory[sellableProduct.Id];
                 stringBuilder.AppendLine(sellableProduct.ToSellingString(quantity));
             }
             AppendTradingOptions(stringBuilder);
 
             return stringBuilder.ToString();
-
         }
     }
 }

@@ -1,4 +1,3 @@
-
 namespace IntermediaryProject {
     [AttributeUsage(AttributeTargets.Field)]
     public class EnumOrderAttribute : Attribute {

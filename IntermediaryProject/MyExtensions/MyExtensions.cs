@@ -11,7 +11,6 @@ namespace ExtensionMethods {
             var element = list[(int)indexToPop];
             list.RemoveAt((int)indexToPop);
             return element;
-
         }
     }
 }

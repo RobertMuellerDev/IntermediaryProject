@@ -5,7 +5,6 @@ using IntermediaryProject.Products;
 namespace IntermediaryProject;
 
 public class Intermediary {
-
     private readonly string _name;
     private readonly string _companyName;
     private static readonly int _storagePricePerUnit = 50;
@@ -52,9 +51,13 @@ public class Intermediary {
 
     internal void BuyProducts(Product product, int quantity) {
         if (_capital < (product.Price * quantity)) {
-            throw new IntermediaryBuyException($"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
+            throw new IntermediaryBuyException(
+                                               $"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!"
+                                              );
         } else if (quantity > _availableStorageCapacity) {
-            throw new IntermediaryBuyException($"Es ist nicht genug Lagerkapazität vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
+            throw new IntermediaryBuyException(
+                                               $"Es ist nicht genug Lagerkapazität vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!"
+                                              );
         }
         _capital -= product.Price * quantity;
         _storageUtilization += quantity;
@@ -67,9 +70,15 @@ public class Intermediary {
 
     internal void SellProducts(Product product, int quantity) {
         if (!_inventory.ContainsKey(product.Id)) {
-            throw new ArgumentOutOfRangeException(nameof(product.Id), "Dieses Produkt hat der Händler nicht auf Lager!");
+            throw new ArgumentOutOfRangeException(
+                                                  nameof(product.Id),
+                                                  "Dieses Produkt hat der Händler nicht auf Lager!"
+                                                 );
         } else if (_inventory[product.Id] < quantity) {
-            throw new ArgumentOutOfRangeException(nameof(quantity), "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!");
+            throw new ArgumentOutOfRangeException(
+                                                  nameof(quantity),
+                                                  "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!"
+                                                 );
         }
         _capital += product.SellingPrice * quantity;
         _storageUtilization -= quantity;
@@ -82,8 +91,10 @@ public class Intermediary {
 
     internal void IncreaseStorage(int storageExpansionSize) {
         if (_capital < (_storagePricePerUnit * storageExpansionSize)) {
-            throw new ArgumentOutOfRangeException(nameof(storageExpansionSize),
-            $"Es ist nicht genug Kapital vorhanden, um {storageExpansionSize:n0} Lagereinheiten zu kaufen!");
+            throw new ArgumentOutOfRangeException(
+                                                  nameof(storageExpansionSize),
+                                                  $"Es ist nicht genug Kapital vorhanden, um {storageExpansionSize:n0} Lagereinheiten zu kaufen!"
+                                                 );
         }
         _capital -= _storagePricePerUnit * storageExpansionSize;
         _storageCapacity += storageExpansionSize;
