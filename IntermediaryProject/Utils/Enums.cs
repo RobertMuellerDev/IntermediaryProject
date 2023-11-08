@@ -10,7 +10,10 @@ namespace IntermediaryProject.Utils {
 
             return values.OrderBy(
                                   value => {
-                                      var memInfo = type.GetMember(type.GetEnumName(value) ?? throw new InvalidOperationException());
+                                      var memInfo = type.GetMember(
+                                                                   type.GetEnumName(value) ??
+                                                                   throw new InvalidOperationException()
+                                                                  );
                                       var orderAttributes = memInfo[0]
                                           .GetCustomAttributes(typeof(EnumOrderAttribute), false);
                                       var order = orderAttributes.Length > 0

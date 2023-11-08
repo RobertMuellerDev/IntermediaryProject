@@ -24,10 +24,6 @@ namespace IntermediaryProject.Products {
             get { return _name; }
         }
 
-        public int Durability {
-            get { return _durability; }
-        }
-
         public int Price {
             get { return _price; }
             private set {
