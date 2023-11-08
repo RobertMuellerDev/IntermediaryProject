@@ -60,7 +60,7 @@ namespace IntermediaryProject {
         }
 
         private static void AppendTradingOptions(StringBuilder stringBuilder) {
-            stringBuilder.AppendLine($"\nz) Zurück");
+            stringBuilder.AppendLine("\nz) Zurück");
         }
 
         internal static void PrintItemsToSell(Intermediary intermediary) {

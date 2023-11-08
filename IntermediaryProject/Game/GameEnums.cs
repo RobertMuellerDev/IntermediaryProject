@@ -7,7 +7,7 @@ namespace IntermediaryProject {
             Order = order;
         }
     }
-    public enum DifficultyLevel : int {
+    public enum DifficultyLevel {
         [EnumOrder(2)]
         Schwer = 7_000,
         [EnumOrder(1)]

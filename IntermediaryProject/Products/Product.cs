@@ -3,28 +3,18 @@ using IntermediaryProject.Exceptions;
 
 namespace IntermediaryProject.Products {
     public class Product {
-        private static byte s_idNumberSeed = 1;
-        private static readonly Random s_rnd = new Random();
+        private static byte s_idNumberSeed;
+        private static readonly Random s_rnd;
+        private static readonly string s_productPattern;
         private readonly byte _id;
         private readonly string _name;
         private readonly int _basePrice;
         private readonly int _maxAvailability;
-        private int _durability;
+        private readonly int _durability;
+        private readonly int _minProductionRate;
         private int _price;
-        private int _minProductionRate;
         private int _maxProductionRate;
         private int _availability;
-
-        private static readonly string _productPattern = string.Join(
-                                                                     "",
-                                                                     new string[] {
-                                                                         @"(name:)\s*(?<nameValue>\w*)\s*",
-                                                                         @"(durability:)\s*(?<durabilityValue>\d*)\s*",
-                                                                         @"(baseprice:)\s*(?<basepriceValue>\d*)\s*",
-                                                                         @"(minProductionRate:)\s*(?<minProductionRateValue>[-]?\d*)\s*",
-                                                                         @"(maxProductionRate:)\s*(?<maxProductionRateValue>[-]?\d*)"
-                                                                     }
-                                                                    );
 
         public byte Id {
             get { return _id; }
@@ -66,7 +56,7 @@ namespace IntermediaryProject.Products {
             }
         }
 
-        public int Availability {
+        private int Availability {
             get { return _availability; }
             set {
                 if (value < 0)
@@ -74,11 +64,7 @@ namespace IntermediaryProject.Products {
                                                           nameof(value),
                                                           "Die verfügbare Menge kann nicht kleiner 0 sein."
                                                          );
-                else if (value > _maxAvailability) {
-                    _availability = _maxAvailability;
-                } else {
-                    _availability = value;
-                }
+                _availability = value > _maxAvailability ? _maxAvailability : value;
             }
         }
 
@@ -98,6 +84,18 @@ namespace IntermediaryProject.Products {
             MaxProductionRate = maxProductionRate;
             _availability = 0;
             _maxAvailability = _maxProductionRate * _durability;
+        }
+        static Product() {
+            s_idNumberSeed = 1;
+            s_rnd = new Random();
+            s_productPattern = string.Join(
+                                           "",
+                                           @"(name:)\s*(?<nameValue>\w*)\s*",
+                                           @"(durability:)\s*(?<durabilityValue>\d*)\s*",
+                                           @"(baseprice:)\s*(?<basepriceValue>\d*)\s*",
+                                           @"(minProductionRate:)\s*(?<minProductionRateValue>[-]?\d*)\s*",
+                                           @"(maxProductionRate:)\s*(?<maxProductionRateValue>[-]?\d*)"
+                                          );
         }
 
         public override string ToString() {
@@ -148,7 +146,7 @@ namespace IntermediaryProject.Products {
         public static List<Product> ConvertProductStringEnumerableToProductList(IEnumerable<string> products) {
             var availableProducts = new List<Product>();
             foreach (var match in from product in products
-                                  let regex = new Regex(_productPattern, RegexOptions.IgnoreCase)
+                                  let regex = new Regex(s_productPattern, RegexOptions.IgnoreCase)
                                   select regex.Match(product.Trim())) {
                 var currentMatch = match;
                 while (currentMatch.Success) {
@@ -191,11 +189,10 @@ namespace IntermediaryProject.Products {
                                    minProductionRate,
                                    maxProductionRate
                                   );
-            } else {
-                Console.WriteLine($"Es trat ein Problem beim Parsen in den Zeilen:\n\"{match.Value}\"\n auf!");
-                Console.WriteLine("Programm wird beendet!");
-                throw new Exception("ParseError");
             }
+            Console.WriteLine($"Es trat ein Problem beim Parsen in den Zeilen:\n\"{match.Value}\"\n auf!");
+            Console.WriteLine("Programm wird beendet!");
+            throw new Exception("ParseError");
         }
 
         private static void ExtractMatchedValues(

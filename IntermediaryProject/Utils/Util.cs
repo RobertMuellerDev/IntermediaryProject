@@ -4,30 +4,23 @@ namespace IntermediaryProject.Utils {
     public static class Util {
         internal static string ReadFileToString(string fileName) {
             var basePath =
-                AppDomain.CurrentDomain.BaseDirectory[..AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin")];
+                AppDomain.CurrentDomain.BaseDirectory[..AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin", StringComparison.Ordinal)];
             var path = basePath + fileName;
-            string readContents;
 
-            using (var streamReader = new StreamReader(path, Encoding.UTF8)) {
-                readContents = streamReader.ReadToEnd();
-            }
+            using var streamReader = new StreamReader(path, Encoding.UTF8);
+            var readContents = streamReader.ReadToEnd();
 
             return readContents;
         }
 
         internal static string GameOptionEnumDisplayNameMapping(GameOption gameOption) {
-            switch (gameOption) {
-                case GameOption.Shopping:
-                    return "Einkaufen";
-                case GameOption.Selling:
-                    return "Verkaufen";
-                case GameOption.EndRound:
-                    return "Runde beenden";
-                case GameOption.Storage:
-                    return "Lager vergrößern";
-                default:
-                    throw new Exception($"No GameOption mapping for {gameOption} available!");
-            }
+            return gameOption switch {
+                GameOption.Shopping => "Einkaufen",
+                GameOption.Selling  => "Verkaufen",
+                GameOption.EndRound => "Runde beenden",
+                GameOption.Storage  => "Lager vergrößern",
+                _                   => throw new Exception($"No GameOption mapping for {gameOption} available!"),
+            };
         }
     }
 }

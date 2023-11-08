@@ -5,9 +5,9 @@ using IntermediaryProject.Utils;
 
 namespace IntermediaryProject {
     static class Game {
-        private static readonly List<Intermediary> _intermediaries = new List<Intermediary>();
+        private static readonly List<Intermediary> _intermediaries = new();
 
-        private static byte _number_of_intermediaries;
+        private static byte s_numberOfIntermediaries;
         private static int _day;
 
         private static readonly List<Product> _availableProducts;
@@ -83,7 +83,7 @@ namespace IntermediaryProject {
         }
 
         private static void StartStorageIncrease() {
-            Console.Write($"Um wieviel soll die Lagerkapazität vergrößert werden? ");
+            Console.Write("Um wieviel soll die Lagerkapazität vergrößert werden? ");
             do {
                 var size = ReadAndValidateStringFromReadLine("Geben Sie eine gültige Zahl ein: ");
                 if (!int.TryParse(size, out var parsedSize)) continue;
@@ -91,7 +91,7 @@ namespace IntermediaryProject {
                     try {
                         _currentIntermediary.IncreaseStorage(parsedSize);
                     } catch (ArgumentOutOfRangeException e) {
-                        System.Console.WriteLine(e.Message);
+                        Console.WriteLine(e.Message);
                     }
                 }
                 break;
@@ -202,7 +202,7 @@ namespace IntermediaryProject {
         }
 
         private static void CreateAndSaveIntermediaries() {
-            for (var i = 1; i <= _number_of_intermediaries; i++) {
+            for (var i = 1; i <= s_numberOfIntermediaries; i++) {
                 Console.Write($"Name von Zwischenhändler {i}: ");
                 var intermediaryName = ReadAndValidateStringFromReadLine("Geben Sie einen gültigen Namen ein: ");
                 Console.Write($"Name von der Firma von {intermediaryName}: ");
@@ -214,7 +214,7 @@ namespace IntermediaryProject {
 
         private static DifficultyLevel AskUserForDifficultyLevel() {
             Console.WriteLine();
-            Console.WriteLine($"Wählen Sie einen Schwierigkeitsgrad aus: ");
+            Console.WriteLine("Wählen Sie einen Schwierigkeitsgrad aus: ");
             UI.PrintDifficultyLevelChoice();
             return GetValidatedDifficultyLevelFromInput();
         }
@@ -239,7 +239,6 @@ namespace IntermediaryProject {
                 var input = Console.ReadLine();
                 if (!string.IsNullOrWhiteSpace(input)) return input;
                 Console.Write(errorMessageForInvalidInput);
-                continue;
             }
         }
 
@@ -248,8 +247,8 @@ namespace IntermediaryProject {
             while (true) {
                 var input = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(input) ||
-                    !byte.TryParse(input, out _number_of_intermediaries) ||
-                    _number_of_intermediaries == 0) {
+                    !byte.TryParse(input, out s_numberOfIntermediaries) ||
+                    s_numberOfIntermediaries == 0) {
                     Console.Write("Geben Sie eine Zahl von 1 - 255: ");
                     continue;
                 }
