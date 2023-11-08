@@ -1,23 +1,34 @@
 
 using System.Text.RegularExpressions;
+using IntermediaryProject.Exceptions;
 
 namespace IntermediaryProject.Products {
     public class Product {
         private static byte s_idNumberSeed = 1;
-
+        private static readonly Random s_rnd = new Random();
         private readonly byte _id;
         private readonly string _name;
-
         private int _durability;
-
         private int _price;
+        private int _minProductionRate;
+        private int _maxProductionRate;
+        private int _availability;
+
+        private static readonly string _productPattern = string.Join("", new string[] {
+                                  @"(name:)\s*(?<nameValue>\w*)\s*",
+                                  @"(durability:)\s*(?<durabilityValue>\d*)\s*",
+                                  @"(baseprice:)\s*(?<basepriceValue>\d*)\s*",
+                                  @"(minProductionRate:)\s*(?<minProductionRateValue>[-]?\d*)\s*",
+                                  @"(maxProductionRate:)\s*(?<maxProductionRateValue>[-]?\d*)"});
 
         public byte Id {
             get { return _id; }
         }
+
         public string Name {
             get { return _name; }
         }
+
         public int Durability {
             get { return _durability; }
         }
@@ -26,29 +37,81 @@ namespace IntermediaryProject.Products {
             get { return _price; }
         }
 
-        public Product(string name, int durability, int price) {
+        public int MaxProductionRate {
+            set {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(value),
+                    "Die maximale Produktionsrate muss größer 0 sein.");
+                _maxProductionRate = value;
+            }
+        }
+
+        public int Availability {
+            get { return _availability; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(value),
+                    "Die verfügbare Menge kann nicht kleiner 0 sein.");
+                else if (value > _maxProductionRate * _durability) {
+                    _availability = _maxProductionRate * _durability;
+                } else {
+                    _availability = value;
+                }
+            }
+        }
+
+        public Product(string name, int durability, int price, int minProductionRate, int maxProductionRate) {
             _id = s_idNumberSeed++;
             _name = name;
             _durability = durability;
             _price = price;
+            _minProductionRate = minProductionRate;
+            MaxProductionRate = maxProductionRate;
+            _availability = 0;
         }
 
         public override string ToString() {
-            return $"{_id}) {_name} ({_durability} Tag{(_durability > 1 ? "e" : "")}) ${_price}/Stück";
+            return $"{_id}) {_name} ({_availability}) ({_durability} Tag{(_durability > 1 ? "e" : "")}) ${_price}/Stück";
         }
+
         public string ToSellingString(int quantity) {
             return $"{_id}) {_name} ({quantity}) ${CalculateSellingPrice()}/Stück";
+        }
+
+        public void ProduceProduct() {
+            int producedQuantity = s_rnd.Next(_minProductionRate, _maxProductionRate + 1);
+            if (Availability + producedQuantity < 0) {
+                Availability = 0;
+            } else {
+                Availability += producedQuantity;
+            }
+        }
+
+        public void ReduceAvailabilityWhenBuying(int quantity) {
+            if (Availability - quantity < 0) {
+                throw new ProductNotAvailableException("Es kann nicht mehr von einem Produkt gekauft werden, als verfügbar ist.");
+            }
+
+            Availability -= quantity;
+        }
+
+        public void ReverseBuyingProcess(int quantity) {
+            Availability += quantity;
         }
 
         public static List<Product> ConvertProductStringEnumerableToProductList(IEnumerable<string> products) {
             var availableProducts = new List<Product>();
             foreach (var match in from product in products
-                                  let productPattern = @"(name:)\s*(?<nameValue>\w*)\s*(durability:)\s*(?<durabilityValue>\d*)\s*(baseprice:)\s*(?<basepriceValue>\d*)"
-                                  let regex = new Regex(productPattern, RegexOptions.IgnoreCase)
+                                  let regex = new Regex(_productPattern, RegexOptions.IgnoreCase)
                                   select regex.Match(product.Trim())) {
                 var currentMatch = match;
                 while (currentMatch.Success) {
-                    availableProducts.Add(ConvertMatchToProduct(currentMatch));
+                    try {
+                        availableProducts.Add(ConvertMatchToProduct(currentMatch));
+                    } catch (ArgumentOutOfRangeException e) {
+                        Console.WriteLine(e.Message);
+                        throw;
+                    }
 
                     currentMatch = currentMatch.NextMatch();
                 }
@@ -57,11 +120,15 @@ namespace IntermediaryProject.Products {
         }
 
         private static Product ConvertMatchToProduct(Match match) {
-            var name = match.Groups["nameValue"].Value;
-            var durability = match.Groups["durabilityValue"].Value;
-            var price = match.Groups["basepriceValue"].Value;
-            if (AreValuesValid(name, durability, price) && int.TryParse(durability, out int parsedDurability) && int.TryParse(price, out int parsedPrice)) {
-                return new Product(name, parsedDurability, parsedPrice);
+            ExtractMatchedValues(match, out string name, out string durability, out string price, out string minProductionRateValue, out string maxProductionRateValue);
+            if (
+                AreValuesValid(name, durability, price, minProductionRateValue, maxProductionRateValue) &&
+                int.TryParse(durability, out int parsedDurability) &&
+                int.TryParse(price, out int parsedPrice) &&
+                int.TryParse(minProductionRateValue, out int minProductionRate) &&
+                int.TryParse(maxProductionRateValue, out int maxProductionRate)
+            ) {
+                return new Product(name, parsedDurability, parsedPrice, minProductionRate, maxProductionRate);
             } else {
                 Console.WriteLine($"Es trat ein Problem beim Parsen in den Zeilen:\n\"{match.Value}\"\n auf!");
                 Console.WriteLine("Programm wird beendet!");
@@ -69,13 +136,26 @@ namespace IntermediaryProject.Products {
             }
         }
 
-        private static bool AreValuesValid(string name, string durability, string price) {
+        private static void ExtractMatchedValues(Match match, out string name, out string durability, out string price, out string minProductionRateValue, out string maxProductionRateValue) {
+            name = match.Groups["nameValue"].Value;
+            durability = match.Groups["durabilityValue"].Value;
+            price = match.Groups["basepriceValue"].Value;
+            minProductionRateValue = match.Groups["minProductionRateValue"].Value;
+            maxProductionRateValue = match.Groups["maxProductionRateValue"].Value;
+        }
 
-            return !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(durability) && !string.IsNullOrEmpty(price);
+        private static bool AreValuesValid(string name, string durability, string price, string minProductionRateValue, string maxProductionRateValue) {
+            return (
+                !string.IsNullOrEmpty(name) &&
+                !string.IsNullOrEmpty(durability) &&
+                !string.IsNullOrEmpty(price) &&
+                !string.IsNullOrEmpty(minProductionRateValue) &&
+                !string.IsNullOrEmpty(maxProductionRateValue)
+            );
         }
 
         public static IEnumerable<string> GetEnumerableOfIndividualProductsFromYmlContent(string ymlContent) {
-            return ymlContent.Split('-').Where(arrayElement => !string.IsNullOrEmpty(arrayElement));
+            return ymlContent.Split("- ").Where(arrayElement => !string.IsNullOrWhiteSpace(arrayElement));
         }
 
         public int CalculateSellingPrice() {

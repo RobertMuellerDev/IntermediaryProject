@@ -1,4 +1,5 @@
 using ExtensionMethods;
+using IntermediaryProject.Exceptions;
 using IntermediaryProject.Products;
 using IntermediaryProject.Utils;
 
@@ -21,20 +22,33 @@ static class Game {
         _availableProducts = ImportAvailableProducts();
         AskForNumberOfIntermediaries();
         CreateAndSaveIntermediaries();
-        _day = 1;
+        _day = 0;
         _currentIntermediary = _intermediaries[0];
     }
 
     public static void Play() {
+        ChangeOfDay();
         while (true) {
             foreach (var intermediary in _intermediaries) {
                 _currentIntermediary = intermediary;
                 PlayRound();
             }
-            _day++;
-            ChangeIntermediariesOrder();
+            ChangeOfDay();
         }
     }
+
+    private static void ChangeOfDay() {
+        _day++;
+        ChangeIntermediariesOrder();
+        ExecuteProductionCycle();
+    }
+
+    private static void ExecuteProductionCycle() {
+        foreach (var product in _availableProducts) {
+            product.ProduceProduct();
+        }
+    }
+
     private static void ChangeIntermediariesOrder() {
         var firstElement = _intermediaries.Pop(0);
         _intermediaries.Add(firstElement);
@@ -145,8 +159,12 @@ static class Game {
 
     private static void BuyProduct(Product product, int quantity) {
         try {
+            product.ReduceAvailabilityWhenBuying(quantity);
             _currentIntermediary.BuyProducts(product, quantity);
-        } catch (InvalidOperationException e) {
+        } catch (Exception e) when (e is ProductNotAvailableException || e is IntermediaryBuyException) {
+            if (e is IntermediaryBuyException) {
+                product.ReverseBuyingProcess(quantity);
+            }
             Console.WriteLine(e.Message);
         }
     }
@@ -227,6 +245,5 @@ static class Game {
         var ymlContent = Util.ReadFileToString("produkte.yml");
         IEnumerable<string> products = Product.GetEnumerableOfIndividualProductsFromYmlContent(ymlContent);
         return Product.ConvertProductStringEnumerableToProductList(products);
-
     }
 }

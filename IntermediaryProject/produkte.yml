@@ -1,9 +1,15 @@
 - name: Gurke
 durability: 21
 baseprice: 5
+minProductionRate: -2
+maxProductionRate: 15
 - name: Aprikose
 durability: 4
 baseprice: 20
+minProductionRate: -5
+maxProductionRate: 10
 - name: Zitrone
 durability: 12
 baseprice: 12
+minProductionRate: -3
+maxProductionRate: 15

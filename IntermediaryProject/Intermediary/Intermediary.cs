@@ -1,4 +1,5 @@
 using System.Data.SqlTypes;
+using IntermediaryProject.Exceptions;
 using IntermediaryProject.Products;
 
 namespace IntermediaryProject;
@@ -50,9 +51,9 @@ public class Intermediary {
 
     internal void BuyProducts(Product product, int quantity) {
         if (_capital < (product.Price * quantity)) {
-            throw new InvalidOperationException($"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
+            throw new IntermediaryBuyException($"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
         } else if (quantity > _availableStorageCapacity) {
-            throw new InvalidOperationException($"Es ist nicht genug Lagerkapazität vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
+            throw new IntermediaryBuyException($"Es ist nicht genug Lagerkapazität vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!");
         }
         _capital -= product.Price * quantity;
         _storageUtilization += quantity;
