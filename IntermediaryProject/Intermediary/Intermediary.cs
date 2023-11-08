@@ -70,7 +70,7 @@ public class Intermediary {
         } else if (_inventory[product.Id] < quantity) {
             throw new ArgumentOutOfRangeException(nameof(quantity), "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!");
         }
-        _capital += product.CalculateSellingPrice() * quantity;
+        _capital += product.SellingPrice * quantity;
         _storageUtilization -= quantity;
         if (_inventory[product.Id] == quantity) {
             _inventory.Remove(product.Id);

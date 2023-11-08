@@ -40,12 +40,13 @@ static class Game {
     private static void ChangeOfDay() {
         _day++;
         ChangeIntermediariesOrder();
-        ExecuteProductionCycle();
+        ExecuteProductChangeDayOperations();
     }
 
-    private static void ExecuteProductionCycle() {
+    private static void ExecuteProductChangeDayOperations() {
         foreach (var product in _availableProducts) {
             product.ProduceProduct();
+            product.CalculatePurchasePrice();
         }
     }
 

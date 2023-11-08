@@ -8,6 +8,8 @@ namespace IntermediaryProject.Products {
         private static readonly Random s_rnd = new Random();
         private readonly byte _id;
         private readonly string _name;
+        private readonly int _basePrice;
+        private readonly int _maxAvailability;
         private int _durability;
         private int _price;
         private int _minProductionRate;
@@ -35,6 +37,19 @@ namespace IntermediaryProject.Products {
 
         public int Price {
             get { return _price; }
+            private set {
+                if (value > 3 * _basePrice) {
+                    _price = 3 * _basePrice;
+                } else if (value < (_basePrice * 0.25)) {
+                    _price = (int)Math.Ceiling(_basePrice * 0.25);
+                } else {
+                    _price = value;
+                }
+            }
+        }
+
+        public int SellingPrice {
+            get { return (int)Math.Ceiling(Price * 0.8); }
         }
 
         public int MaxProductionRate {
@@ -52,8 +67,8 @@ namespace IntermediaryProject.Products {
                 if (value < 0)
                     throw new ArgumentOutOfRangeException(nameof(value),
                     "Die verfügbare Menge kann nicht kleiner 0 sein.");
-                else if (value > _maxProductionRate * _durability) {
-                    _availability = _maxProductionRate * _durability;
+                else if (value > _maxAvailability) {
+                    _availability = _maxAvailability;
                 } else {
                     _availability = value;
                 }
@@ -64,10 +79,12 @@ namespace IntermediaryProject.Products {
             _id = s_idNumberSeed++;
             _name = name;
             _durability = durability;
+            _basePrice = price;
             _price = price;
             _minProductionRate = minProductionRate;
             MaxProductionRate = maxProductionRate;
             _availability = 0;
+            _maxAvailability = _maxProductionRate * _durability;
         }
 
         public override string ToString() {
@@ -75,7 +92,7 @@ namespace IntermediaryProject.Products {
         }
 
         public string ToSellingString(int quantity) {
-            return $"{_id}) {_name} ({quantity}) ${CalculateSellingPrice()}/Stück";
+            return $"{_id}) {_name} ({quantity}) ${SellingPrice}/Stück";
         }
 
         public void ProduceProduct() {
@@ -85,6 +102,18 @@ namespace IntermediaryProject.Products {
             } else {
                 Availability += producedQuantity;
             }
+        }
+
+        public void CalculatePurchasePrice() {
+            int priceDevelopment;
+            if (Availability < (_maxAvailability * 0.25)) {
+                priceDevelopment = s_rnd.Next(-10, 31);
+            } else if (Availability > (_maxAvailability * 0.25) && Availability < (_maxAvailability * 0.8)) {
+                priceDevelopment = s_rnd.Next(-5, 6);
+            } else {
+                priceDevelopment = s_rnd.Next(-10, 7);
+            }
+            Price += (int)Math.Ceiling(priceDevelopment / 100.0 * _basePrice);
         }
 
         public void ReduceAvailabilityWhenBuying(int quantity) {
@@ -156,10 +185,6 @@ namespace IntermediaryProject.Products {
 
         public static IEnumerable<string> GetEnumerableOfIndividualProductsFromYmlContent(string ymlContent) {
             return ymlContent.Split("- ").Where(arrayElement => !string.IsNullOrWhiteSpace(arrayElement));
-        }
-
-        public int CalculateSellingPrice() {
-            return (int)(Math.Ceiling(_price * 0.8));
         }
     }
 }
