@@ -99,7 +99,7 @@ namespace IntermediaryProject.Products {
                 $"{_id}) {_name} ({_availability}) ({_durability} Tag{(_durability > 1 ? "e" : "")}) ${_price}/Stück";
         }
 
-        public string ToSellingString(int quantity) {
+        public string CreateSalesString(int quantity) {
             return $"{_id}) {_name} ({quantity}) ${SellingPrice}/Stück";
         }
 

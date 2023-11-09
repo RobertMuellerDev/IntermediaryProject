@@ -75,7 +75,7 @@ namespace IntermediaryProject {
             var sellableProducts = Game.Products.Where(product => intermediary.Inventory.ContainsKey(product.Id));
             foreach (var sellableProduct in sellableProducts) {
                 var quantity = intermediary.Inventory[sellableProduct.Id];
-                stringBuilder.AppendLine(sellableProduct.ToSellingString(quantity));
+                stringBuilder.AppendLine(sellableProduct.CreateSalesString(quantity));
             }
             AppendTradingOptions(stringBuilder);
 

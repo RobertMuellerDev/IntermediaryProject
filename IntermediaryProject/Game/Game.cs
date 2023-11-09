@@ -18,12 +18,17 @@ namespace IntermediaryProject {
         }
 
         static Game() {
-            _availableProducts = ImportAvailableProducts();
+            _availableProducts = ReadAvailableProductsFromFile();
             AskForNumberOfIntermediaries();
             CreateAndSaveIntermediaries();
             _day = 1;
             _currentIntermediary = _intermediaries[0];
             ExecuteProductChangeDayOperations();
+        }
+
+        private static List<Product> ReadAvailableProductsFromFile() {
+            var ymlContent = Util.ReadFileToString("produkte.yml");
+            return ParseYMLContentToProducts(ymlContent);
         }
 
         public static void Play() {
@@ -59,7 +64,7 @@ namespace IntermediaryProject {
             do {
                 UI.PrintHeader(_currentIntermediary, _day);
                 UI.PrintGameMenuActions();
-                var selectedAction = AskUserForAction();
+                var selectedAction = AskForAction();
                 roundFinished = PerformSelectedAction(selectedAction);
             } while (!roundFinished);
         }
@@ -67,10 +72,10 @@ namespace IntermediaryProject {
         private static bool PerformSelectedAction(GameAction selectedAction) {
             switch (selectedAction) {
                 case GameAction.Shopping:
-                    StartShopping();
+                    StartShoppingAction();
                     return false;
                 case GameAction.Selling:
-                    StartSelling();
+                    StartSellingAction();
                     return false;
                 case GameAction.Storage:
                     StartStorageIncrease();
@@ -98,17 +103,17 @@ namespace IntermediaryProject {
             } while (true);
         }
 
-        private static void StartSelling() {
+        private static void StartSellingAction() {
             do {
                 UI.PrintItemsToSell(_currentIntermediary);
-                var input = AskUserForSellingAction();
+                var input = AskForSellingAction();
                 if (input.ToLower()[0] == 'z') {
                     break;
                 }
             } while (true);
         }
 
-        private static string AskUserForSellingAction() {
+        private static string AskForSellingAction() {
             var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
 
             if (byte.TryParse(input, out var parsedId) &&
@@ -125,14 +130,14 @@ namespace IntermediaryProject {
                 var quantity = ReadAndValidateStringFromReadLine("Geben Sie eine gültige Anzahl ein: ");
                 if (!int.TryParse(quantity, out var parsedQuantity)) continue;
                 if (parsedQuantity > 0) {
-                    SellProduct(_availableProducts[parsedId - 1], parsedQuantity);
+                    SellSelectedQuantityOfProduct(_availableProducts[parsedId - 1], parsedQuantity);
                 }
 
                 break;
             } while (true);
         }
 
-        private static void SellProduct(Product product, int quantity) {
+        private static void SellSelectedQuantityOfProduct(Product product, int quantity) {
             try {
                 _currentIntermediary.SellProducts(product, quantity);
             } catch (ArgumentOutOfRangeException e) {
@@ -140,18 +145,18 @@ namespace IntermediaryProject {
             }
         }
 
-        private static void StartShopping() {
+        private static void StartShoppingAction() {
             do {
                 UI.PrintShop(_availableProducts);
 
-                var input = AskUserForShoppingAction();
+                var input = AskForShoppingAction();
                 if (input.ToLower()[0] == 'z') {
                     break;
                 }
             } while (true);
         }
 
-        private static string AskUserForShoppingAction() {
+        private static string AskForShoppingAction() {
             var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
 
             if (byte.TryParse(input, out var parsedId) &&
@@ -187,7 +192,7 @@ namespace IntermediaryProject {
             }
         }
 
-        private static GameAction AskUserForAction() {
+        private static GameAction AskForAction() {
             GameAction? selectedAction = null;
             do {
                 var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
@@ -207,12 +212,12 @@ namespace IntermediaryProject {
                 var intermediaryName = ReadAndValidateStringFromReadLine("Geben Sie einen gültigen Namen ein: ");
                 Console.Write($"Name von der Firma von {intermediaryName}: ");
                 var intermediaryCompanyName = ReadAndValidateStringFromReadLine("Geben Sie eine gültige Firma ein: ");
-                var difficultyLevel = AskUserForDifficultyLevel();
+                var difficultyLevel = AskForDifficultyLevel();
                 _intermediaries.Add(new Intermediary(intermediaryName, intermediaryCompanyName, (int)difficultyLevel));
             }
         }
 
-        private static DifficultyLevel AskUserForDifficultyLevel() {
+        private static DifficultyLevel AskForDifficultyLevel() {
             Console.WriteLine();
             Console.WriteLine("Wählen Sie einen Schwierigkeitsgrad aus: ");
             UI.PrintDifficultyLevelChoice();
@@ -256,8 +261,7 @@ namespace IntermediaryProject {
             }
         }
 
-        private static List<Product> ImportAvailableProducts() {
-            var ymlContent = Util.ReadFileToString("produkte.yml");
+        private static List<Product> ParseYMLContentToProducts(string ymlContent) {
             var products = Product.GetEnumerableOfIndividualProductsFromYmlContent(ymlContent);
             return Product.ConvertProductStringEnumerableToProductList(products);
         }
