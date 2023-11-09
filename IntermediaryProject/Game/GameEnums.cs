@@ -15,7 +15,7 @@ namespace IntermediaryProject {
         [EnumOrder(0)]
         Einfach = 15_000,
     }
-    public enum GameOption {
+    public enum GameAction {
         [EnumOrder(0)]
         Shopping = 101,
         [EnumOrder(1)]

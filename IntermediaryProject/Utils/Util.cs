@@ -16,13 +16,13 @@ namespace IntermediaryProject.Utils {
             return readContents;
         }
 
-        internal static string GameOptionEnumDisplayNameMapping(GameOption gameOption) {
-            return gameOption switch {
-                GameOption.Shopping => "Einkaufen",
-                GameOption.Selling  => "Verkaufen",
-                GameOption.EndRound => "Runde beenden",
-                GameOption.Storage  => "Lager vergrößern",
-                _                   => throw new Exception($"No GameOption mapping for {gameOption} available!"),
+        internal static string DetermineDisplaytextByGameAction(GameAction gameAction) {
+            return gameAction switch {
+                GameAction.Shopping => "Einkaufen",
+                GameAction.Selling  => "Verkaufen",
+                GameAction.EndRound => "Runde beenden",
+                GameAction.Storage  => "Lager vergrößern",
+                _                   => throw new Exception($"No GameAction mapping for {gameAction} available!"),
             };
         }
     }

@@ -13,7 +13,7 @@ namespace IntermediaryProject {
         private static readonly List<Product> _availableProducts;
         private static Intermediary _currentIntermediary;
 
-        public static List<Product> ProductList {
+        public static List<Product> Products {
             get { return _availableProducts; }
         }
 
@@ -38,7 +38,7 @@ namespace IntermediaryProject {
 
         private static void ChangeOfDay() {
             _day++;
-            ChangeIntermediariesOrder();
+            RotateFirstIntermediaryToTheEnd();
             ExecuteProductChangeDayOperations();
         }
 
@@ -49,7 +49,7 @@ namespace IntermediaryProject {
             }
         }
 
-        private static void ChangeIntermediariesOrder() {
+        private static void RotateFirstIntermediaryToTheEnd() {
             var firstElement = _intermediaries.Pop(0);
             _intermediaries.Add(firstElement);
         }
@@ -58,24 +58,24 @@ namespace IntermediaryProject {
             var roundFinished = false;
             do {
                 UI.PrintHeader(_currentIntermediary, _day);
-                UI.PrintGameMenuOptions();
-                var selectedOption = AskUserForAction();
-                roundFinished = ExecuteSelectedAction(selectedOption);
+                UI.PrintGameMenuActions();
+                var selectedAction = AskUserForAction();
+                roundFinished = PerformSelectedAction(selectedAction);
             } while (!roundFinished);
         }
 
-        private static bool ExecuteSelectedAction(GameOption selectedOption) {
-            switch (selectedOption) {
-                case GameOption.Shopping:
+        private static bool PerformSelectedAction(GameAction selectedAction) {
+            switch (selectedAction) {
+                case GameAction.Shopping:
                     StartShopping();
                     return false;
-                case GameOption.Selling:
+                case GameAction.Selling:
                     StartSelling();
                     return false;
-                case GameOption.Storage:
+                case GameAction.Storage:
                     StartStorageIncrease();
                     return false;
-                case GameOption.EndRound:
+                case GameAction.EndRound:
                     return true;
                 default:
                     return false;
@@ -187,18 +187,18 @@ namespace IntermediaryProject {
             }
         }
 
-        private static GameOption AskUserForAction() {
-            GameOption? selectedOption = null;
+        private static GameAction AskUserForAction() {
+            GameAction? selectedAction = null;
             do {
                 var input = ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
-                foreach (var gameOption in Enum.GetValues(typeof(GameOption))
-                                               .Cast<GameOption>()) {
-                    if (input.ToLower()[0] == (char)(gameOption)) {
-                        selectedOption = gameOption;
+                foreach (var gameAction in Enum.GetValues(typeof(GameAction))
+                                               .Cast<GameAction>()) {
+                    if (input.ToLower()[0] == (char)(gameAction)) {
+                        selectedAction = gameAction;
                     }
                 }
-            } while (selectedOption is null);
-            return (GameOption)selectedOption;
+            } while (selectedAction is null);
+            return (GameAction)selectedAction;
         }
 
         private static void CreateAndSaveIntermediaries() {

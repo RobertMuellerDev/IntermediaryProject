@@ -4,14 +4,14 @@ using IntermediaryProject.Utils;
 
 namespace IntermediaryProject {
     public static class UI {
-        public static void PrintGameMenuOptions() {
-            Console.WriteLine(BuildGameMenuOptionsString());
+        public static void PrintGameMenuActions() {
+            Console.WriteLine(BuildGameMenuActionsString());
         }
 
-        private static string BuildGameMenuOptionsString() {
+        private static string BuildGameMenuActionsString() {
             StringBuilder stringBuilder = new();
-            foreach (var gameOption in Enums.ToList<GameOption>()) {
-                stringBuilder.Append($"\n{(char)(gameOption)}) {Util.GameOptionEnumDisplayNameMapping(gameOption)}");
+            foreach (var gameAction in Enums.ToList<GameAction>()) {
+                stringBuilder.Append($"\n{(char)(gameAction)}) {Util.DetermineDisplaytextByGameAction(gameAction)}");
             }
             return stringBuilder.ToString();
         }
@@ -72,7 +72,7 @@ namespace IntermediaryProject {
             StringBuilder stringBuilder = new();
             stringBuilder.AppendLine("Produkte im Besitz:");
 
-            var sellableProducts = Game.ProductList.Where(product => intermediary.Inventory.ContainsKey(product.Id));
+            var sellableProducts = Game.Products.Where(product => intermediary.Inventory.ContainsKey(product.Id));
             foreach (var sellableProduct in sellableProducts) {
                 var quantity = intermediary.Inventory[sellableProduct.Id];
                 stringBuilder.AppendLine(sellableProduct.ToSellingString(quantity));
