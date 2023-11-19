@@ -7,7 +7,7 @@ namespace IntermediaryProject {
     static class Game {
         private static readonly List<Intermediary> _intermediaries = new();
 
-        private static byte s_numberOfIntermediaries;
+        private static int s_numberOfIntermediaries;
         private static int _day;
 
         private static readonly List<Product> _availableProducts;
@@ -35,16 +35,43 @@ namespace IntermediaryProject {
             while (true) {
                 foreach (var intermediary in _intermediaries) {
                     _currentIntermediary = intermediary;
+                    if (IsBankrupt(intermediary)) {
+                        UI.PrintBankruptcyNotification(intermediary);
+                        continue;
+                    }
                     PlayRound();
+                }
+                RemoveBankruptIntermediaries();
+                if (IsGameOver()) {
+                    break;
                 }
                 ChangeOfDay();
             }
+        }
+        private static void RemoveBankruptIntermediaries() {
+            int amountOfDeletedIntermediaries = _intermediaries.RemoveAll(IsBankrupt);
+            s_numberOfIntermediaries -= amountOfDeletedIntermediaries;
+        }
+
+        private static bool IsBankrupt(Intermediary intermediary) {
+            return (intermediary.Capital < 0);
         }
 
         private static void ChangeOfDay() {
             _day++;
             RotateFirstIntermediaryToTheEnd();
             ExecuteProductChangeDayOperations();
+            ChargeStorageOperatingCosts();
+        }
+
+        private static bool IsGameOver() {
+            return _intermediaries.Count == 0;
+        }
+
+        private static void ChargeStorageOperatingCosts() {
+            foreach (var intermediary in _intermediaries) {
+                intermediary.PayStorageOperatingCosts();
+            }
         }
 
         private static void ExecuteProductChangeDayOperations() {
@@ -252,8 +279,8 @@ namespace IntermediaryProject {
             while (true) {
                 var input = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(input) ||
-                    !byte.TryParse(input, out s_numberOfIntermediaries) ||
-                    s_numberOfIntermediaries == 0) {
+                    !int.TryParse(input, out s_numberOfIntermediaries) ||
+                    s_numberOfIntermediaries <= 0) {
                     Console.Write("Geben Sie eine Zahl von 1 - 255: ");
                     continue;
                 }

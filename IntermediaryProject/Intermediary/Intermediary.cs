@@ -3,7 +3,7 @@ using IntermediaryProject.Products;
 
 namespace IntermediaryProject {
     public class Intermediary {
-        private const int s_storagePricePerUnit = 50;
+        private static readonly int s_storagePricePerUnit = 50;
         private readonly string _name;
         private readonly string _companyName;
         private int _capital;
@@ -98,6 +98,13 @@ namespace IntermediaryProject {
             }
             _capital -= s_storagePricePerUnit * storageExpansionSize;
             _storageCapacity += storageExpansionSize;
+        }
+
+        internal void PayStorageOperatingCosts() {
+            int storageOperatingCosts = _storageUtilization * 5;
+            storageOperatingCosts += _availableStorageCapacity * 1;
+
+            _capital -= storageOperatingCosts;
         }
     }
 }

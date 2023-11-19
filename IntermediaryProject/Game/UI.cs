@@ -81,5 +81,10 @@ namespace IntermediaryProject {
 
             return stringBuilder.ToString();
         }
+        public static void PrintBankruptcyNotification(Intermediary intermediary) {
+            Console.WriteLine();
+            Console.Write($"{intermediary.Name} von {intermediary.CompanyName} ist Bankrott!");
+            Console.WriteLine();
+        }
     }
 }
