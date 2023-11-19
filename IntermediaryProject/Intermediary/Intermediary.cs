@@ -2,7 +2,7 @@ using IntermediaryProject.Exceptions;
 using IntermediaryProject.Products;
 
 namespace IntermediaryProject {
-    public class Intermediary {
+    public class Intermediary : IComparable<Intermediary> {
         private static readonly int s_storagePricePerUnit = 50;
         private readonly string _name;
         private readonly string _companyName;
@@ -105,6 +105,15 @@ namespace IntermediaryProject {
             storageOperatingCosts += _availableStorageCapacity * 1;
 
             _capital -= storageOperatingCosts;
+        }
+
+        public int CompareTo(Intermediary compareIntermediary) {
+            // A null value means that this object is greater.
+            if (compareIntermediary == null)
+                return -1;
+
+            else
+                return -(Capital.CompareTo(compareIntermediary.Capital));
         }
     }
 }

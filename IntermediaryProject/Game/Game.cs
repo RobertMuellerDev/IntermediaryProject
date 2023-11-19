@@ -9,6 +9,7 @@ namespace IntermediaryProject {
 
         private static int s_numberOfIntermediaries;
         private static int _day;
+        private static int s_numberOfDays;
 
         private static readonly List<Product> _availableProducts;
         private static Intermediary _currentIntermediary;
@@ -19,6 +20,7 @@ namespace IntermediaryProject {
 
         static Game() {
             _availableProducts = ReadAvailableProductsFromFile();
+            AskForAmountOfDaysToPlay();
             AskForNumberOfIntermediaries();
             CreateAndSaveIntermediaries();
             _day = 1;
@@ -32,7 +34,7 @@ namespace IntermediaryProject {
         }
 
         public static void Play() {
-            while (true) {
+            while (_day <= s_numberOfDays) {
                 foreach (var intermediary in _intermediaries) {
                     _currentIntermediary = intermediary;
                     if (IsBankrupt(intermediary)) {
@@ -47,6 +49,8 @@ namespace IntermediaryProject {
                 }
                 ChangeOfDay();
             }
+            _intermediaries.Sort();
+            UI.PrintLeaderboard(_intermediaries);
         }
         private static void RemoveBankruptIntermediaries() {
             int amountOfDeletedIntermediaries = _intermediaries.RemoveAll(IsBankrupt);
@@ -281,7 +285,21 @@ namespace IntermediaryProject {
                 if (string.IsNullOrWhiteSpace(input) ||
                     !int.TryParse(input, out s_numberOfIntermediaries) ||
                     s_numberOfIntermediaries <= 0) {
-                    Console.Write("Geben Sie eine Zahl von 1 - 255: ");
+                    Console.Write("Geben Sie eine positive Zahl ein: ");
+                    continue;
+                }
+                break;
+            }
+        }
+
+        private static void AskForAmountOfDaysToPlay() {
+            Console.Write("Wieviele Tage wollen Sie spielen?: ");
+            while (true) {
+                var input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input) ||
+                    !int.TryParse(input, out s_numberOfDays) ||
+                    s_numberOfDays <= 0) {
+                    Console.Write("Geben Sie eine positive Zahl ein: ");
                     continue;
                 }
                 break;

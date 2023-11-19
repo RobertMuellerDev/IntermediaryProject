@@ -86,5 +86,14 @@ namespace IntermediaryProject {
             Console.Write($"{intermediary.Name} von {intermediary.CompanyName} ist Bankrott!");
             Console.WriteLine();
         }
+        public static void PrintLeaderboard(List<Intermediary> intermediaries) {
+            Console.WriteLine();
+            Console.WriteLine("Rangliste:");
+            for (int i = 0; i < intermediaries.Count; i++) {
+                Console.WriteLine(
+                                  $"{i + 1}. Platz: {intermediaries[i].Name} von {intermediaries[i].CompanyName} mit ${intermediaries[i].Capital:C0}"
+                                 );
+            }
+        }
     }
 }
