@@ -3,11 +3,13 @@
 class Program {
     static void Main(string[] args) {
         try {
-            Game.Play();
+            var ui = new Ui();
+            var game = new Game(ui, new BusinessLogic(ui));
+            game.Play();
         } catch (Exception e) {
-            if (e.Message != "ParseError") {
-                Console.WriteLine("Error: " + e.Message);
-            }
+            Console.WriteLine("Error: " + e.Message);
+            Console.WriteLine("Programm wird beendet!");
+
             Environment.Exit(0);
         }
     }

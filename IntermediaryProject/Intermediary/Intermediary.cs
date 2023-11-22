@@ -53,11 +53,13 @@ namespace IntermediaryProject {
                                                    $"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!"
                                                   );
             }
+
             if (quantity > _availableStorageCapacity) {
                 throw new IntermediaryBuyException(
                                                    $"Es ist nicht genug Lagerkapazität vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!"
                                                   );
             }
+
             _capital -= product.Price * quantity;
             _storageUtilization += quantity;
             if (_inventory.ContainsKey(product.Id)) {
@@ -69,17 +71,16 @@ namespace IntermediaryProject {
 
         internal void SellProducts(Product product, int quantity) {
             if (!_inventory.ContainsKey(product.Id)) {
-                throw new ArgumentOutOfRangeException(
-                                                      nameof(product.Id),
-                                                      "Dieses Produkt hat der Händler nicht auf Lager!"
-                                                     );
+                throw new ArgumentOutOfRangeException("Id", "Dieses Produkt hat der Händler nicht auf Lager!");
             }
+
             if (_inventory[product.Id] < quantity) {
                 throw new ArgumentOutOfRangeException(
                                                       nameof(quantity),
                                                       "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!"
                                                      );
             }
+
             _capital += product.SellingPrice * quantity;
             _storageUtilization -= quantity;
             if (_inventory[product.Id] == quantity) {
@@ -96,6 +97,7 @@ namespace IntermediaryProject {
                                                       $"Es ist nicht genug Kapital vorhanden, um {storageExpansionSize:n0} Lagereinheiten zu kaufen!"
                                                      );
             }
+
             _capital -= s_storagePricePerUnit * storageExpansionSize;
             _storageCapacity += storageExpansionSize;
         }

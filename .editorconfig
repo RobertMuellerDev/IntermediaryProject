@@ -1,0 +1,7 @@
+[*]
+
+# Microsoft .NET properties
+csharp_preserve_single_line_blocks = true
+
+# ReSharper properties
+resharper_keep_existing_arrangement = false

@@ -12,4 +12,10 @@ namespace IntermediaryProject.Exceptions {
         public IntermediaryBuyException(string message) : base(message) { }
         public IntermediaryBuyException(string message, Exception inner) : base(message, inner) { }
     }
+
+    public class EndGameException : Exception {
+        public EndGameException() { }
+        public EndGameException(string message) : base(message) { }
+        public EndGameException(string message, Exception inner) : base(message, inner) { }
+    }
 }
