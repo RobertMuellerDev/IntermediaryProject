@@ -59,22 +59,46 @@ namespace IntermediaryProject.Products {
                                minProductionRateValue,
                                maxProductionRateValue
                               ) &&
-                int.TryParse((string?)durability, out var parsedDurability) &&
-                int.TryParse((string?)price, out var parsedPrice) &&
-                int.TryParse((string?)minProductionRateValue, out var minProductionRate) &&
-                int.TryParse((string?)maxProductionRateValue, out var maxProductionRate)) {
-                return new Product(
-                                   name,
-                                   parsedDurability,
-                                   parsedPrice,
-                                   minProductionRate,
-                                   maxProductionRate
-                                  );
-            }
+                CreateNewProduct(
+                                 durability,
+                                 price,
+                                 minProductionRateValue,
+                                 maxProductionRateValue,
+                                 name,
+                                 out var product
+                                ))
+                return product;
+
             throw new EndGameException(
                                        $"ParserError: Es trat ein Problem beim Parsen in den Zeilen:\n\"{match.Value}\"\n auf!"
                                       );
         }
+
+        private static bool CreateNewProduct(
+            string durability,
+            string price,
+            string minProductionRateValue,
+            string maxProductionRateValue,
+            string name,
+            out Product product
+        ) {
+            if (!int.TryParse(durability, out var parsedDurability) ||
+                !int.TryParse(price, out var parsedPrice) ||
+                !int.TryParse(minProductionRateValue, out var minProductionRate) ||
+                !int.TryParse(maxProductionRateValue, out var maxProductionRate)) {
+                product = null;
+                return false;
+            }
+            product = new Product(
+                                  name,
+                                  parsedDurability,
+                                  parsedPrice,
+                                  minProductionRate,
+                                  maxProductionRate
+                                 );
+            return true;
+        }
+
         private static void ExtractMatchedValues(
             Match match,
             out string name,
@@ -89,6 +113,7 @@ namespace IntermediaryProject.Products {
             minProductionRateValue = match.Groups["minProductionRateValue"].Value;
             maxProductionRateValue = match.Groups["maxProductionRateValue"].Value;
         }
+
         private static bool AreValuesValid(
             string name,
             string durability,
@@ -102,6 +127,7 @@ namespace IntermediaryProject.Products {
                     !string.IsNullOrEmpty(minProductionRateValue) &&
                     !string.IsNullOrEmpty(maxProductionRateValue));
         }
+
         private static IEnumerable<string> GetEnumerableOfIndividualProductsFromYmlContent(string ymlContent) {
             return ymlContent.Split("- ")
                              .Where(arrayElement => !string.IsNullOrWhiteSpace(arrayElement));
