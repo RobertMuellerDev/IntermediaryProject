@@ -1,5 +1,4 @@
 using ExtensionMethods;
-using IntermediaryProject.Exceptions;
 using IntermediaryProject.Products;
 
 namespace IntermediaryProject {
@@ -13,15 +12,11 @@ namespace IntermediaryProject {
 
         private readonly List<Product> _availableProducts;
         private Intermediary _currentIntermediary;
-        private readonly BusinessLogic _businessLogic;
+        private readonly GameLogic _gameLogic;
 
-        public List<Product> Products {
-            get { return _availableProducts; }
-        }
-
-        public Game(IUi ui, BusinessLogic businessLogic) {
+        public Game(IUi ui, GameLogic gameLogic) {
             _ui = ui;
-            _businessLogic = businessLogic;
+            _gameLogic = gameLogic;
             _availableProducts = YamlParser.ReadAvailableProductsFromFile("produkte.yml");
             AskForAmountOfDaysToPlay();
             AskForNumberOfIntermediaries();
@@ -60,7 +55,7 @@ namespace IntermediaryProject {
             s_numberOfIntermediaries -= amountOfDeletedIntermediaries;
         }
 
-        private bool IsBankrupt(Intermediary intermediary) {
+        private static bool IsBankrupt(Intermediary intermediary) {
             return (intermediary.Capital < 0);
         }
 
@@ -77,14 +72,14 @@ namespace IntermediaryProject {
 
         private void ChargeStorageOperatingCosts() {
             foreach (var intermediary in _intermediaries) {
-                intermediary.PayStorageOperatingCosts();
+                IntermediaryService.PayStorageOperatingCosts(intermediary);
             }
         }
 
         private void ExecuteProductChangeDayOperations() {
             foreach (var product in _availableProducts) {
-                product.ProduceProduct();
-                product.CalculatePurchasePrice();
+                ProductService.ProduceProduct(product);
+                ProductService.CalculatePurchasePrice(product);
             }
         }
 
@@ -98,12 +93,12 @@ namespace IntermediaryProject {
             do {
                 _ui.PrintHeader(_currentIntermediary, _day);
                 _ui.PrintGameMenuActions();
-                var selectedAction = _businessLogic.AskForAction();
-                roundFinished = _businessLogic.PerformSelectedAction(
-                                                                     selectedAction,
-                                                                     _currentIntermediary,
-                                                                     _availableProducts
-                                                                    );
+                var selectedAction = _gameLogic.AskForAction();
+                roundFinished = _gameLogic.PerformSelectedAction(
+                    selectedAction,
+                    _currentIntermediary,
+                    _availableProducts
+                );
             } while (!roundFinished);
         }
 
@@ -143,7 +138,7 @@ namespace IntermediaryProject {
         }
 
         private void AskForNumberOfIntermediaries() {
-            _ui.Write("Wieviel Zwischenhändler nehmen teil?: ");
+            _ui.Write("Wie viel Zwischenhändler nehmen teil?: ");
             while (true) {
                 var input = _ui.ReadLine();
                 if (string.IsNullOrWhiteSpace(input) ||
@@ -158,7 +153,7 @@ namespace IntermediaryProject {
         }
 
         private void AskForAmountOfDaysToPlay() {
-            _ui.Write("Wieviele Tage wollen Sie spielen?: ");
+            _ui.Write("Wie viele Tage wollen Sie spielen?: ");
             while (true) {
                 var input = _ui.ReadLine();
                 if (string.IsNullOrWhiteSpace(input) ||

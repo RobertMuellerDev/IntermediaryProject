@@ -5,13 +5,13 @@ using IntermediaryProject.Utils;
 namespace IntermediaryProject.Products {
     public static class YamlParser {
         private static readonly string s_productPattern = string.Join(
-                                                                      "",
-                                                                      @"(name:)\s*(?<nameValue>\w*)\s*",
-                                                                      @"(durability:)\s*(?<durabilityValue>\d*)\s*",
-                                                                      @"(baseprice:)\s*(?<basepriceValue>\d*)\s*",
-                                                                      @"(minProductionRate:)\s*(?<minProductionRateValue>[-]?\d*)\s*",
-                                                                      @"(maxProductionRate:)\s*(?<maxProductionRateValue>[-]?\d*)"
-                                                                     );
+            "",
+            @"(name:)\s*(?<nameValue>\w*)\s*",
+            @"(durability:)\s*(?<durabilityValue>\d*)\s*",
+            @"(baseprice:)\s*(?<basepriceValue>\d*)\s*",
+            @"(minProductionRate:)\s*(?<minProductionRateValue>[-]?\d*)\s*",
+            @"(maxProductionRate:)\s*(?<maxProductionRateValue>[-]?\d*)"
+        );
 
         public static List<Product> ReadAvailableProductsFromFile(string filename) {
             var ymlContent = Util.ReadFileToString(filename);
@@ -26,52 +26,54 @@ namespace IntermediaryProject.Products {
         private static List<Product> ConvertProductStringEnumerableToProductList(IEnumerable<string> products) {
             var availableProducts = new List<Product>();
             foreach (var match in from product in products
-                                  let regex = new Regex(s_productPattern, RegexOptions.IgnoreCase)
-                                  select regex.Match(product.Trim())) {
+                     let regex = new Regex(s_productPattern, RegexOptions.IgnoreCase)
+                     select regex.Match(product.Trim())) {
                 var currentMatch = match;
                 while (currentMatch.Success) {
                     try {
                         availableProducts.Add(ConvertMatchToProduct(currentMatch));
                     } catch (ArgumentOutOfRangeException e) {
                         throw new EndGameException(
-                                                   $"Folgender Fehler trat für das Produkt: {currentMatch.Value} auf: " +
-                                                   e.Message
-                                                  );
+                            $"Folgender Fehler trat für das Produkt: {currentMatch.Value} auf: " + e.Message
+                        );
                     }
+
                     currentMatch = currentMatch.NextMatch();
                 }
             }
+
             return availableProducts;
         }
+
         private static Product ConvertMatchToProduct(Match match) {
             ExtractMatchedValues(
-                                 match,
-                                 out var name,
-                                 out var durability,
-                                 out var price,
-                                 out var minProductionRateValue,
-                                 out var maxProductionRateValue
-                                );
+                match,
+                out var name,
+                out var durability,
+                out var price,
+                out var minProductionRateValue,
+                out var maxProductionRateValue
+            );
             if (AreValuesValid(
-                               name,
-                               durability,
-                               price,
-                               minProductionRateValue,
-                               maxProductionRateValue
-                              ) &&
+                    name,
+                    durability,
+                    price,
+                    minProductionRateValue,
+                    maxProductionRateValue
+                ) &&
                 CreateNewProduct(
-                                 durability,
-                                 price,
-                                 minProductionRateValue,
-                                 maxProductionRateValue,
-                                 name,
-                                 out var product
-                                ))
+                    durability,
+                    price,
+                    minProductionRateValue,
+                    maxProductionRateValue,
+                    name,
+                    out var product
+                ))
                 return product;
 
             throw new EndGameException(
-                                       $"ParserError: Es trat ein Problem beim Parsen in den Zeilen:\n\"{match.Value}\"\n auf!"
-                                      );
+                $"ParserError: Es trat ein Problem beim Parsen in den Zeilen:\n\"{match.Value}\"\n auf!"
+            );
         }
 
         private static bool CreateNewProduct(
@@ -89,13 +91,14 @@ namespace IntermediaryProject.Products {
                 product = null;
                 return false;
             }
+
             product = new Product(
-                                  name,
-                                  parsedDurability,
-                                  parsedPrice,
-                                  minProductionRate,
-                                  maxProductionRate
-                                 );
+                name,
+                parsedDurability,
+                parsedPrice,
+                minProductionRate,
+                maxProductionRate
+            );
             return true;
         }
 

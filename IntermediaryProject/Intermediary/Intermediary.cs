@@ -3,113 +3,31 @@ using IntermediaryProject.Products;
 
 namespace IntermediaryProject {
     public class Intermediary : IComparable<Intermediary> {
-        private static readonly int s_storagePricePerUnit = 50;
-        private readonly string _name;
-        private readonly string _companyName;
-        private int _capital;
-        private readonly Dictionary<int, int> _inventory = new();
-        private int _storageCapacity;
-        private int _storageUtilization;
-
-        private int _availableStorageCapacity {
-            get { return _storageCapacity - _storageUtilization; }
+        public int AvailableStorageCapacity {
+            get { return StorageCapacity - StorageUtilization; }
         }
 
-        public int Capital {
-            get { return _capital; }
-        }
+        public int Capital { get; set; }
 
-        public string Name {
-            get { return _name; }
-        }
+        public string Name { get; }
 
-        public string CompanyName {
-            get { return _companyName; }
-        }
+        public string CompanyName { get; }
 
-        public Dictionary<int, int> Inventory {
-            get { return _inventory; }
-        }
+        public Dictionary<int, int> Inventory { get; } = new();
 
-        public int StorageCapacity {
-            get { return _storageCapacity; }
-        }
+        public int StorageCapacity { get; set; }
 
-        public int StorageUtilization {
-            get { return _storageUtilization; }
-        }
+        public int StorageUtilization { get; set; }
 
         public Intermediary(string name, string companyName, int startingCapital) {
-            _name = name;
-            _companyName = companyName;
-            _capital = startingCapital;
-            _storageCapacity = 100;
-            _storageUtilization = 0;
+            Name = name;
+            CompanyName = companyName;
+            Capital = startingCapital;
+            StorageCapacity = 100;
+            StorageUtilization = 0;
         }
 
-        internal void BuyProducts(Product product, int quantity) {
-            if (_capital < (product.Price * quantity)) {
-                throw new IntermediaryBuyException(
-                                                   $"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!"
-                                                  );
-            }
-
-            if (quantity > _availableStorageCapacity) {
-                throw new IntermediaryBuyException(
-                                                   $"Es ist nicht genug Lagerkapazität vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!"
-                                                  );
-            }
-
-            _capital -= product.Price * quantity;
-            _storageUtilization += quantity;
-            if (_inventory.ContainsKey(product.Id)) {
-                _inventory[product.Id] += quantity;
-            } else {
-                _inventory.Add(product.Id, quantity);
-            }
-        }
-
-        internal void SellProducts(Product product, int quantity) {
-            if (!_inventory.ContainsKey(product.Id)) {
-                throw new ArgumentOutOfRangeException("Id", "Dieses Produkt hat der Händler nicht auf Lager!");
-            }
-
-            if (_inventory[product.Id] < quantity) {
-                throw new ArgumentOutOfRangeException(
-                                                      nameof(quantity),
-                                                      "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!"
-                                                     );
-            }
-
-            _capital += product.SellingPrice * quantity;
-            _storageUtilization -= quantity;
-            if (_inventory[product.Id] == quantity) {
-                _inventory.Remove(product.Id);
-            } else {
-                _inventory[product.Id] -= quantity;
-            }
-        }
-
-        internal void IncreaseStorage(int storageExpansionSize) {
-            if (_capital < (s_storagePricePerUnit * storageExpansionSize)) {
-                throw new ArgumentOutOfRangeException(
-                                                      nameof(storageExpansionSize),
-                                                      $"Es ist nicht genug Kapital vorhanden, um {storageExpansionSize:n0} Lagereinheiten zu kaufen!"
-                                                     );
-            }
-
-            _capital -= s_storagePricePerUnit * storageExpansionSize;
-            _storageCapacity += storageExpansionSize;
-        }
-
-        internal void PayStorageOperatingCosts() {
-            int storageOperatingCosts = _storageUtilization * 5;
-            storageOperatingCosts += _availableStorageCapacity * 1;
-
-            _capital -= storageOperatingCosts;
-        }
-
-        public int CompareTo(Intermediary compareIntermediary) {
+        public int CompareTo(Intermediary? compareIntermediary) {
             // A null value means that this object is greater.
             if (compareIntermediary == null)
                 return -1;

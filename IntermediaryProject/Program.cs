@@ -1,10 +1,11 @@
 ﻿using IntermediaryProject;
 
 class Program {
-    static void Main(string[] args) {
+    private static void Main(string[] args) {
         try {
             var ui = new Ui();
-            var game = new Game(ui, new BusinessLogic(ui));
+            var gameLogic = new GameLogic(ui);
+            var game = new Game(ui, gameLogic);
             game.Play();
         } catch (Exception e) {
             Console.WriteLine("Error: " + e.Message);

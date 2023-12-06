@@ -41,6 +41,7 @@ namespace IntermediaryProject {
                 if (!string.IsNullOrWhiteSpace(input)) {
                     return input;
                 }
+
                 Write(errorMessageForInvalidInput);
             }
         }
@@ -54,8 +55,10 @@ namespace IntermediaryProject {
             foreach (var gameAction in Enums.ToList<GameAction>()) {
                 stringBuilder.Append($"\n{(char)(gameAction)}) {Util.DetermineDisplaytextByGameAction(gameAction)}");
             }
+
             return stringBuilder.ToString();
         }
+
         public void PrintHeader(Intermediary intermediary, int day) {
             Console.WriteLine();
             Console.Write($"{intermediary.Name} von {intermediary.CompanyName} ");
@@ -75,10 +78,11 @@ namespace IntermediaryProject {
                                                 .Cast<DifficultyLevel>()
                                                 .Reverse()) {
                 stringBuilder.AppendLine(
-                                         $"{(char)(charCounter + 97)}) Schwierigkeitsgrad: {difficultyLevel} -> Startkapital: ${(int)difficultyLevel:n0}"
-                                        );
+                    $"{(char)(charCounter + 97)}) Schwierigkeitsgrad: {difficultyLevel} -> Startkapital: ${(int)difficultyLevel:n0}"
+                );
                 charCounter++;
             }
+
             return stringBuilder.ToString();
         }
 
@@ -94,6 +98,7 @@ namespace IntermediaryProject {
             foreach (var product in availableProducts) {
                 stringBuilder.AppendLine(product.ToString());
             }
+
             AppendTradingOptions(stringBuilder);
             return stringBuilder.ToString();
         }
@@ -116,22 +121,25 @@ namespace IntermediaryProject {
                 var quantity = intermediary.Inventory[sellableProduct.Id];
                 stringBuilder.AppendLine(sellableProduct.CreateSalesString(quantity));
             }
+
             AppendTradingOptions(stringBuilder);
 
             return stringBuilder.ToString();
         }
+
         public void PrintBankruptcyNotification(Intermediary intermediary) {
             Console.WriteLine();
             Console.Write($"{intermediary.Name} von {intermediary.CompanyName} ist Bankrott!");
             Console.WriteLine();
         }
+
         public void PrintLeaderboard(List<Intermediary> intermediaries) {
             Console.WriteLine();
             Console.WriteLine("Rangliste:");
             for (int i = 0; i < intermediaries.Count; i++) {
                 Console.WriteLine(
-                                  $"{i + 1}. Platz: {intermediaries[i].Name} von {intermediaries[i].CompanyName} mit ${intermediaries[i].Capital:C0}"
-                                 );
+                    $"{i + 1}. Platz: {intermediaries[i].Name} von {intermediaries[i].CompanyName} mit ${intermediaries[i].Capital:C0}"
+                );
             }
         }
     }

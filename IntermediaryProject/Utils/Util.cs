@@ -5,9 +5,9 @@ namespace IntermediaryProject.Utils {
         internal static string ReadFileToString(string fileName) {
             var basePath =
                 AppDomain.CurrentDomain.BaseDirectory[..AppDomain.CurrentDomain.BaseDirectory.IndexOf(
-                                                           "bin",
-                                                           StringComparison.Ordinal
-                                                          )];
+                    "bin",
+                    StringComparison.Ordinal
+                )];
             var path = basePath + fileName;
 
             using var streamReader = new StreamReader(path, Encoding.UTF8);
