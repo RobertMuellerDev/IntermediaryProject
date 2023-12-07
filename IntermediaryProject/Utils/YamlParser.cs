@@ -26,8 +26,8 @@ namespace IntermediaryProject.Products {
         private static List<Product> ConvertProductStringEnumerableToProductList(IEnumerable<string> products) {
             var availableProducts = new List<Product>();
             foreach (var match in from product in products
-                     let regex = new Regex(s_productPattern, RegexOptions.IgnoreCase)
-                     select regex.Match(product.Trim())) {
+                                  let regex = new Regex(s_productPattern, RegexOptions.IgnoreCase)
+                                  select regex.Match(product.Trim())) {
                 var currentMatch = match;
                 while (currentMatch.Success) {
                     try {

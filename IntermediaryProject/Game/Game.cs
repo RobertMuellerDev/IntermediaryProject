@@ -1,5 +1,6 @@
 using ExtensionMethods;
 using IntermediaryProject.Products;
+using IntermediaryProject.Utils;
 
 namespace IntermediaryProject {
     class Game {
@@ -30,7 +31,8 @@ namespace IntermediaryProject {
             while (_day <= s_numberOfDays) {
                 foreach (var intermediary in _intermediaries) {
                     _currentIntermediary = intermediary;
-                    if (IsBankrupt(intermediary)) {
+                    ShowReport();
+                    if (Util.IsBankrupt(intermediary)) {
                         _ui.PrintBankruptcyNotification(intermediary);
                         continue;
                     }
@@ -50,13 +52,21 @@ namespace IntermediaryProject {
             _ui.PrintLeaderboard(_intermediaries);
         }
 
-        private void RemoveBankruptIntermediaries() {
-            int amountOfDeletedIntermediaries = _intermediaries.RemoveAll(IsBankrupt);
-            s_numberOfIntermediaries -= amountOfDeletedIntermediaries;
+        private void ShowReport() {
+            ReportData reportData = Util.PrepareReportData(_currentIntermediary);
+            _ui.PrintReport(reportData);
+            while (_ui.ReadKey()
+                      .Key !=
+                   ConsoleKey.Enter) {
+            }
+
+            _currentIntermediary.TransactionsOfTheDay.Clear();
+            reportData = null;
         }
 
-        private static bool IsBankrupt(Intermediary intermediary) {
-            return (intermediary.Capital < 0);
+        private void RemoveBankruptIntermediaries() {
+            int amountOfDeletedIntermediaries = _intermediaries.RemoveAll(Util.IsBankrupt);
+            s_numberOfIntermediaries -= amountOfDeletedIntermediaries;
         }
 
         private void ChangeToNextDay() {
@@ -89,6 +99,7 @@ namespace IntermediaryProject {
         }
 
         private void PlayRound() {
+            _currentIntermediary.Discounts = Util.CalculateDiscounts(_currentIntermediary, _availableProducts);
             bool roundFinished;
             do {
                 _ui.PrintHeader(_currentIntermediary, _day);

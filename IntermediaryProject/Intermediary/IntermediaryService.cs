@@ -1,13 +1,15 @@
 using IntermediaryProject.Exceptions;
 using IntermediaryProject.Products;
+using IntermediaryProject.Transactions;
 
 namespace IntermediaryProject;
 
 public static class IntermediaryService {
     private static readonly int s_storagePricePerUnit = 50;
 
-    internal static void BuyProducts(Intermediary intermediary, Product product, int quantity) {
-        if (intermediary.Capital < (product.Price * quantity)) {
+    internal static void BuyProduct(Intermediary intermediary, Product product, int quantity) {
+        var buyingCosts = product.Price * quantity * (1 - intermediary.Discounts[product.Id] / 100m);
+        if (intermediary.Capital < buyingCosts) {
             throw new IntermediaryBuyException(
                 $"Es ist nicht genug Kapital vorhanden, um {quantity:n0}-mal {product.Name} zu kaufen!"
             );
@@ -19,13 +21,15 @@ public static class IntermediaryService {
             );
         }
 
-        intermediary.Capital -= product.Price * quantity;
+        intermediary.Capital -= buyingCosts;
         intermediary.StorageUtilization += quantity;
         if (intermediary.Inventory.ContainsKey(product.Id)) {
             intermediary.Inventory[product.Id] += quantity;
         } else {
             intermediary.Inventory.Add(product.Id, quantity);
         }
+
+        intermediary.TransactionsOfTheDay.Add(new Transaction(buyingCosts, TransactionType.Shopping));
     }
 
     internal static void SellProducts(Intermediary intermediary, Product product, int quantity) {
@@ -40,31 +44,38 @@ public static class IntermediaryService {
             );
         }
 
-        intermediary.Capital += product.SellingPrice * quantity;
+        var productSellingRevenue = product.SellingPrice * quantity;
+
+        intermediary.Capital += productSellingRevenue;
         intermediary.StorageUtilization -= quantity;
         if (intermediary.Inventory[product.Id] == quantity) {
             intermediary.Inventory.Remove(product.Id);
         } else {
             intermediary.Inventory[product.Id] -= quantity;
         }
+
+        intermediary.TransactionsOfTheDay.Add(new Transaction(productSellingRevenue, TransactionType.Selling));
     }
 
-    internal static void IncreaseStorage(Intermediary intermediary, int storageExpansionSize) {
-        if (intermediary.Capital < (s_storagePricePerUnit * storageExpansionSize)) {
+    internal static void ExpandStorage(Intermediary intermediary, int storageExpansionSize) {
+        var storageExpansionCosts = s_storagePricePerUnit * storageExpansionSize;
+        if (intermediary.Capital < storageExpansionCosts) {
             throw new ArgumentOutOfRangeException(
                 nameof(storageExpansionSize),
                 $"Es ist nicht genug Kapital vorhanden, um {storageExpansionSize:n0} Lagereinheiten zu kaufen!"
             );
         }
 
-        intermediary.Capital -= s_storagePricePerUnit * storageExpansionSize;
+        intermediary.Capital -= storageExpansionCosts;
         intermediary.StorageCapacity += storageExpansionSize;
+        intermediary.TransactionsOfTheDay.Add(new Transaction(storageExpansionCosts, TransactionType.Storage));
     }
 
     internal static void PayStorageOperatingCosts(Intermediary intermediary) {
-        int storageOperatingCosts = intermediary.StorageUtilization * 5;
+        var storageOperatingCosts = intermediary.StorageUtilization * 5;
         storageOperatingCosts += intermediary.AvailableStorageCapacity * 1;
 
         intermediary.Capital -= storageOperatingCosts;
+        intermediary.TransactionsOfTheDay.Add(new Transaction(storageOperatingCosts, TransactionType.Storage));
     }
 }

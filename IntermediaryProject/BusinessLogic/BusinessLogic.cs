@@ -11,7 +11,7 @@ static class BusinessLogic {
     internal static void BuyProduct(Intermediary intermediary, Product product, int quantity) {
         try {
             ProductService.ReduceAvailabilityWhenBuying(product, quantity);
-            IntermediaryService.BuyProducts(intermediary, product, quantity);
+            IntermediaryService.BuyProduct(intermediary, product, quantity);
         } catch (IntermediaryBuyException e) {
             ProductService.ReverseBuyingProcess(product, quantity);
             throw;

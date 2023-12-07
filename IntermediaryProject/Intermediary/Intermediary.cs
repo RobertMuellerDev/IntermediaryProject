@@ -1,5 +1,4 @@
-using IntermediaryProject.Exceptions;
-using IntermediaryProject.Products;
+using IntermediaryProject.Transactions;
 
 namespace IntermediaryProject {
     public class Intermediary : IComparable<Intermediary> {
@@ -7,7 +6,7 @@ namespace IntermediaryProject {
             get { return StorageCapacity - StorageUtilization; }
         }
 
-        public int Capital { get; set; }
+        public decimal Capital { get; set; }
 
         public string Name { get; }
 
@@ -18,6 +17,10 @@ namespace IntermediaryProject {
         public int StorageCapacity { get; set; }
 
         public int StorageUtilization { get; set; }
+
+        internal List<Transaction> TransactionsOfTheDay { get; } = new();
+
+        public Dictionary<int, int> Discounts { get; set; } = new();
 
         public Intermediary(string name, string companyName, int startingCapital) {
             Name = name;

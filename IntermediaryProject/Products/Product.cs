@@ -1,6 +1,3 @@
-using System.Text.RegularExpressions;
-using IntermediaryProject.Exceptions;
-
 namespace IntermediaryProject.Products {
     public class Product {
         private static byte s_idNumberSeed = 1;

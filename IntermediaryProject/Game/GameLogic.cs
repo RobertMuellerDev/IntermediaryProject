@@ -35,7 +35,7 @@ class GameLogic {
             if (!int.TryParse(size, out var parsedSize)) continue;
             if (parsedSize > 0) {
                 try {
-                    IntermediaryService.IncreaseStorage(intermediary, parsedSize);
+                    IntermediaryService.ExpandStorage(intermediary, parsedSize);
                 } catch (ArgumentOutOfRangeException e) {
                     _ui.WriteLine(e.Message);
                 }
@@ -79,7 +79,7 @@ class GameLogic {
 
     private void StartShoppingAction(Intermediary intermediary, List<Product> products) {
         do {
-            _ui.PrintShop(products);
+            _ui.PrintShop(products, intermediary);
 
             var input = _ui.ReadAndValidateStringFromReadLine("Wählen Sie eine Option aus: ");
             if (input.ToLower()[0] == 'z') {

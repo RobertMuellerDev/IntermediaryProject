@@ -30,4 +30,10 @@ namespace IntermediaryProject {
         Storage = 108,
         EndRound = 98,
     }
+
+    public enum TransactionType {
+        Shopping,
+        Selling,
+        Storage,
+    }
 }

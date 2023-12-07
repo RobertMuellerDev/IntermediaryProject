@@ -9,13 +9,15 @@ namespace IntermediaryProject {
         void WriteLine(string output);
         string? ReadLine();
         string ReadAndValidateStringFromReadLine(string errorMessageForInvalidInput);
+        ConsoleKeyInfo ReadKey();
         void PrintGameMenuActions();
         void PrintHeader(Intermediary intermediary, int day);
         void PrintDifficultyLevelChoice();
-        void PrintShop(List<Product> availableProducts);
+        void PrintShop(List<Product> availableProducts, Intermediary intermediary);
         void PrintItemsToSell(Intermediary intermediary, List<Product> products);
         void PrintBankruptcyNotification(Intermediary intermediary);
         void PrintLeaderboard(List<Intermediary> intermediaries);
+        void PrintReport(ReportData reportData);
     }
 
     public class Ui : IUi {
@@ -46,6 +48,10 @@ namespace IntermediaryProject {
             }
         }
 
+        public ConsoleKeyInfo ReadKey() {
+            return Console.ReadKey();
+        }
+
         public void PrintGameMenuActions() {
             Console.WriteLine(BuildGameMenuActionsString());
         }
@@ -60,9 +66,9 @@ namespace IntermediaryProject {
         }
 
         public void PrintHeader(Intermediary intermediary, int day) {
-            Console.WriteLine();
+            Console.WriteLine("\n");
             Console.Write($"{intermediary.Name} von {intermediary.CompanyName} ");
-            Console.Write($"| ${intermediary.Capital:n0} ");
+            Console.Write($"| ${intermediary.Capital:n2} ");
             Console.Write($"| Lager: {intermediary.StorageUtilization}/{intermediary.StorageCapacity} ");
             Console.WriteLine($"| Tag {day}");
         }
@@ -86,17 +92,18 @@ namespace IntermediaryProject {
             return stringBuilder.ToString();
         }
 
-        public void PrintShop(List<Product> availableProducts) {
+        public void PrintShop(List<Product> availableProducts, Intermediary intermediary) {
             Console.WriteLine();
-            Console.Write(BuildShoppingMenuString(availableProducts));
+            Console.Write(BuildShoppingMenuString(availableProducts, intermediary));
         }
 
-        private string BuildShoppingMenuString(List<Product> availableProducts) {
+        private string BuildShoppingMenuString(List<Product> availableProducts, Intermediary intermediary) {
             StringBuilder stringBuilder = new();
             stringBuilder.AppendLine("Verfügbare Produkte:");
 
             foreach (var product in availableProducts) {
-                stringBuilder.AppendLine(product.ToString());
+                stringBuilder.Append(product.ToString());
+                stringBuilder.AppendLine($" {intermediary.Discounts[product.Id]}% Rabatt");
             }
 
             AppendTradingOptions(stringBuilder);
@@ -141,6 +148,16 @@ namespace IntermediaryProject {
                     $"{i + 1}. Platz: {intermediaries[i].Name} von {intermediaries[i].CompanyName} mit ${intermediaries[i].Capital:C0}"
                 );
             }
+        }
+
+        public void PrintReport(ReportData reportData) {
+            Console.WriteLine();
+            Console.WriteLine("Kontostand zu Beginn des letzten Tags: {0:n2}", reportData.PreviousCapital);
+            Console.WriteLine("Ausgabe für Einkäufe des letzten Tags: {0:n2}", reportData.ShoppingCosts);
+            Console.WriteLine("Einnahmen für Verkäufe des letzten Tags: {0:n2}", reportData.SellingRevenue);
+            Console.WriteLine("Lagerkosten des letzten Tags: {0:n2}", reportData.StorageCosts);
+            Console.WriteLine("Aktueller Kontostand: {0:n2}", reportData.CurrentCapital);
+            Console.Write("Zum Bestätigen Enter drücken.");
         }
     }
 }
