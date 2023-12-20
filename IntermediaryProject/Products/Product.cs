@@ -7,9 +7,7 @@ namespace IntermediaryProject.Products {
         private int _availability;
 
         public byte Id { get; }
-
         public string Name { get; }
-
         public int BasePrice { get; }
 
         public int Price {

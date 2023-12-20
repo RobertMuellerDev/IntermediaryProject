@@ -6,9 +6,9 @@ namespace IntermediaryProject {
     class Game {
         private readonly List<Intermediary> _intermediaries = new();
 
-        private int s_numberOfIntermediaries;
+        private int _numberOfIntermediaries;
         private int _day;
-        private int s_numberOfDays;
+        private int _numberOfDaysToPlay;
         private readonly IUi _ui;
 
         private readonly List<Product> _availableProducts;
@@ -28,7 +28,7 @@ namespace IntermediaryProject {
         }
 
         public void Play() {
-            while (_day <= s_numberOfDays) {
+            while (_day <= _numberOfDaysToPlay) {
                 foreach (var intermediary in _intermediaries) {
                     _currentIntermediary = intermediary;
                     ShowReport();
@@ -53,7 +53,7 @@ namespace IntermediaryProject {
         }
 
         private void ShowReport() {
-            ReportData reportData = Util.PrepareReportData(_currentIntermediary);
+            var reportData = Util.PrepareReportData(_currentIntermediary);
             _ui.PrintReport(reportData);
             while (_ui.ReadKey()
                       .Key !=
@@ -61,12 +61,11 @@ namespace IntermediaryProject {
             }
 
             _currentIntermediary.TransactionsOfTheDay.Clear();
-            reportData = null;
         }
 
         private void RemoveBankruptIntermediaries() {
             int amountOfDeletedIntermediaries = _intermediaries.RemoveAll(Util.IsBankrupt);
-            s_numberOfIntermediaries -= amountOfDeletedIntermediaries;
+            _numberOfIntermediaries -= amountOfDeletedIntermediaries;
         }
 
         private void ChangeToNextDay() {
@@ -74,6 +73,13 @@ namespace IntermediaryProject {
             RotateFirstIntermediaryToTheEnd();
             ExecuteProductChangeDayOperations();
             ChargeStorageOperatingCosts();
+            SettleLoans();
+        }
+
+        private void SettleLoans() {
+            foreach (var intermediary in _intermediaries) {
+                IntermediaryService.PayBackLoan(intermediary, _day);
+            }
         }
 
         private bool IsGameOver() {
@@ -108,13 +114,14 @@ namespace IntermediaryProject {
                 roundFinished = _gameLogic.PerformSelectedAction(
                     selectedAction,
                     _currentIntermediary,
-                    _availableProducts
+                    _availableProducts,
+                    _day
                 );
             } while (!roundFinished);
         }
 
         private void CreateAndSaveIntermediaries() {
-            for (var i = 1; i <= s_numberOfIntermediaries; i++) {
+            for (var i = 1; i <= _numberOfIntermediaries; i++) {
                 _ui.Write($"Name von Zwischenhändler {i}: ");
                 var intermediaryName = _ui.ReadAndValidateStringFromReadLine("Geben Sie einen gültigen Namen ein: ");
                 _ui.Write($"Name von der Firma von {intermediaryName}: ");
@@ -153,8 +160,8 @@ namespace IntermediaryProject {
             while (true) {
                 var input = _ui.ReadLine();
                 if (string.IsNullOrWhiteSpace(input) ||
-                    !int.TryParse(input, out s_numberOfIntermediaries) ||
-                    s_numberOfIntermediaries <= 0) {
+                    !int.TryParse(input, out _numberOfIntermediaries) ||
+                    _numberOfIntermediaries <= 0) {
                     _ui.Write("Geben Sie eine positive Zahl ein: ");
                     continue;
                 }
@@ -168,8 +175,8 @@ namespace IntermediaryProject {
             while (true) {
                 var input = _ui.ReadLine();
                 if (string.IsNullOrWhiteSpace(input) ||
-                    !int.TryParse(input, out s_numberOfDays) ||
-                    s_numberOfDays <= 0) {
+                    !int.TryParse(input, out _numberOfDaysToPlay) ||
+                    _numberOfDaysToPlay <= 0) {
                     _ui.Write("Geben Sie eine positive Zahl ein: ");
                     continue;
                 }

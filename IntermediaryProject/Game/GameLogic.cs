@@ -10,7 +10,12 @@ class GameLogic {
         _ui = ui;
     }
 
-    internal bool PerformSelectedAction(GameAction selectedAction, Intermediary intermediary, List<Product> products) {
+    internal bool PerformSelectedAction(
+        GameAction selectedAction,
+        Intermediary intermediary,
+        List<Product> products,
+        int day
+    ) {
         switch (selectedAction) {
             case GameAction.Shopping:
                 StartShoppingAction(intermediary, products);
@@ -21,11 +26,45 @@ class GameLogic {
             case GameAction.Storage:
                 StartStorageIncrease(intermediary);
                 return false;
+            case GameAction.Loan:
+                StartLoanTakeout(intermediary, day);
+                return false;
             case GameAction.EndRound:
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void StartLoanTakeout(Intermediary intermediary, int day) {
+        var loanOptions = GetLoanOptions();
+        _ui.PrintLoanOptions(loanOptions);
+        do {
+            var input = _ui.ReadAndValidateStringFromReadLine("Wählen Sie einen gültigen Kreditbetrag aus: ");
+            if (input.ToLower()[0] == 'z') {
+                break;
+            }
+
+            if (!int.TryParse(input, out var parsedValue) || parsedValue <= 0 || parsedValue > loanOptions.Count) {
+                continue;
+            }
+
+            try {
+                BusinessLogic.TakeOutLoan(intermediary, loanOptions[parsedValue], day);
+            } catch (IntermediaryLoanException e) {
+                Console.WriteLine(e);
+                break;
+            }
+        } while (true);
+    }
+
+    private static Dictionary<int, (int amount, int interest)> GetLoanOptions() {
+        var loanOptions =
+            new Dictionary<int, (int amount, int interest)>() {
+                [1] = (5_000, 3), [2] = (10_000, 5), [3] = (25_000, 8)
+            };
+
+        return loanOptions;
     }
 
     private void StartStorageIncrease(Intermediary intermediary) {

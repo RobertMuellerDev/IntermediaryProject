@@ -18,6 +18,7 @@ namespace IntermediaryProject {
         void PrintBankruptcyNotification(Intermediary intermediary);
         void PrintLeaderboard(List<Intermediary> intermediaries);
         void PrintReport(ReportData reportData);
+        void PrintLoanOptions(Dictionary<int, (int amount, int interest)> loanOptions);
     }
 
     public class Ui : IUi {
@@ -156,8 +157,22 @@ namespace IntermediaryProject {
             Console.WriteLine("Ausgabe für Einkäufe des letzten Tags: {0:n2}", reportData.ShoppingCosts);
             Console.WriteLine("Einnahmen für Verkäufe des letzten Tags: {0:n2}", reportData.SellingRevenue);
             Console.WriteLine("Lagerkosten des letzten Tags: {0:n2}", reportData.StorageCosts);
+
+            if (reportData.LoanCost > 0) {
+                Console.WriteLine("Es wurde ein Kredit zurückgezahlt: {0:n2}", reportData.LoanCost);
+            }
+
             Console.WriteLine("Aktueller Kontostand: {0:n2}", reportData.CurrentCapital);
             Console.Write("Zum Bestätigen Enter drücken.");
+        }
+
+        public void PrintLoanOptions(Dictionary<int, (int amount, int interest)> loanOptions) {
+            Console.WriteLine("Wählen Sie den Kreditbetrag aus, welchen Sie aufnehmen möchten.");
+            foreach (var (loanKey, loanOption) in loanOptions) {
+                Console.WriteLine($"{loanKey}.) {loanOption.amount:n2} mit {loanOption.interest}% Zinsen");
+            }
+
+            Console.WriteLine("\nz) Zurück");
         }
     }
 }

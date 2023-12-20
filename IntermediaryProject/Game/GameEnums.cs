@@ -28,6 +28,10 @@ namespace IntermediaryProject {
 
         [EnumOrder(2)]
         Storage = 108,
+
+        [EnumOrder(3)]
+        Loan = 107,
+
         EndRound = 98,
     }
 
@@ -35,5 +39,6 @@ namespace IntermediaryProject {
         Shopping,
         Selling,
         Storage,
+        Loan
     }
 }

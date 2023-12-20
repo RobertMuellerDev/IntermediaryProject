@@ -23,6 +23,18 @@ namespace IntermediaryProject.Exceptions {
         }
     }
 
+    [Serializable]
+    public class IntermediaryLoanException : Exception {
+        public IntermediaryLoanException() {
+        }
+
+        public IntermediaryLoanException(string message) : base(message) {
+        }
+
+        public IntermediaryLoanException(string message, Exception inner) : base(message, inner) {
+        }
+    }
+
     public class EndGameException : Exception {
         public EndGameException() {
         }

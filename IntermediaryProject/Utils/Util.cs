@@ -24,11 +24,12 @@ namespace IntermediaryProject.Utils {
                 GameAction.Selling  => "Verkaufen",
                 GameAction.EndRound => "Runde beenden",
                 GameAction.Storage  => "Lager vergrößern",
+                GameAction.Loan     => "Kredit aufnehmen",
                 _                   => throw new Exception($"No GameAction mapping for {gameAction} available!"),
             };
         }
 
-        internal static decimal CalculateTotalAmountOfTheDayForTransactionType(
+        private static decimal CalculateTotalAmountOfTheDayForTransactionType(
             IEnumerable<Transaction> transactionsOfThePreviousDay,
             TransactionType transactionType
         ) {
@@ -52,39 +53,48 @@ namespace IntermediaryProject.Utils {
         }
 
         private static int MapAmountToDiscount(int amount) {
-            if (amount >= 75) {
-                return 10;
-            } else if (amount >= 50) {
-                return 5;
-            } else if (amount >= 25) {
-                return 2;
-            }
-
-            return 0;
+            return amount switch {
+                >= 75 => 10,
+                >= 50 => 5,
+                >= 25 => 2,
+                _     => 0
+            };
         }
 
         internal static ReportData PrepareReportData(Intermediary intermediary) {
-            var shoppingCosts = Util.CalculateTotalAmountOfTheDayForTransactionType(
+            var shoppingCosts = CalculateTotalAmountOfTheDayForTransactionType(
                 intermediary.TransactionsOfTheDay,
                 TransactionType.Shopping
             );
-            var sellingRevenue = Util.CalculateTotalAmountOfTheDayForTransactionType(
+            var sellingRevenue = CalculateTotalAmountOfTheDayForTransactionType(
                 intermediary.TransactionsOfTheDay,
                 TransactionType.Selling
             );
-            var storageCosts = Util.CalculateTotalAmountOfTheDayForTransactionType(
+            var storageCosts = CalculateTotalAmountOfTheDayForTransactionType(
                 intermediary.TransactionsOfTheDay,
                 TransactionType.Storage
             );
-            var previousCapital = intermediary.Capital + shoppingCosts - sellingRevenue + storageCosts;
-            var currentCapital = intermediary.Capital;
+            var loanCosts = 0m;
+            if (HasPaidBackALoan(intermediary.TransactionsOfTheDay)) {
+                loanCosts = CalculateTotalAmountOfTheDayForTransactionType(
+                    intermediary.TransactionsOfTheDay,
+                    TransactionType.Loan
+                );
+            }
+
+            var previousCapital = intermediary.Capital + shoppingCosts - sellingRevenue + storageCosts + loanCosts;
             return new ReportData(
                 shoppingCosts,
                 sellingRevenue,
                 storageCosts,
                 previousCapital,
-                currentCapital
+                intermediary.Capital,
+                loanCosts
             );
+        }
+
+        private static bool HasPaidBackALoan(IEnumerable<Transaction> transactionsOfThePreviousDay) {
+            return transactionsOfThePreviousDay.Any(transaction => transaction.Type == TransactionType.Loan);
         }
 
         public static bool IsBankrupt(Intermediary intermediary) {

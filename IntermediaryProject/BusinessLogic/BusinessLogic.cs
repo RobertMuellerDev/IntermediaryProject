@@ -17,4 +17,13 @@ static class BusinessLogic {
             throw;
         }
     }
+
+    public static void TakeOutLoan(Intermediary intermediary, (int amount, int interest) loanOption, int day) {
+        IntermediaryService.TakeOutALoan(
+            intermediary,
+            loanOption.amount,
+            loanOption.interest,
+            day
+        );
+    }
 }

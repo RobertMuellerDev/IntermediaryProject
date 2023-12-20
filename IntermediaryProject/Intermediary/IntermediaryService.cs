@@ -78,4 +78,32 @@ public static class IntermediaryService {
         intermediary.Capital -= storageOperatingCosts;
         intermediary.TransactionsOfTheDay.Add(new Transaction(storageOperatingCosts, TransactionType.Storage));
     }
+
+    private static bool HasTakenOutLoan(Intermediary intermediary) {
+        return intermediary.TakenOutLoan != null;
+    }
+
+    internal static void TakeOutALoan(
+        Intermediary intermediary,
+        int amount,
+        int interestRate,
+        int day
+    ) {
+        if (HasTakenOutLoan(intermediary)) {
+            throw new IntermediaryLoanException(
+                "Der Händler hat bereits einen Kredit aufgenommen.\nEs können keine weiteren Kredite aufgenommen werden."
+            );
+        }
+
+        intermediary.TakenOutLoan = new Loan(amount, interestRate, day);
+        intermediary.Capital += amount;
+    }
+
+    internal static void PayBackLoan(Intermediary intermediary, int currentDay) {
+        if (intermediary.TakenOutLoan == null || intermediary.TakenOutLoan.DayOfRepayment != currentDay) return;
+        var amountToBeRepaid = intermediary.TakenOutLoan.Amount * (100 + intermediary.TakenOutLoan.InterestRate) / 100;
+        intermediary.Capital -= amountToBeRepaid;
+        intermediary.TransactionsOfTheDay.Add(new Transaction(amountToBeRepaid, TransactionType.Loan));
+        intermediary.TakenOutLoan = null;
+    }
 }
