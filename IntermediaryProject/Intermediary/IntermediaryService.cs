@@ -34,14 +34,11 @@ public static class IntermediaryService {
 
     internal static void SellProducts(Intermediary intermediary, Product product, int quantity) {
         if (!intermediary.Inventory.ContainsKey(product.Id)) {
-            throw new ArgumentOutOfRangeException("Id", "Dieses Produkt hat der Händler nicht auf Lager!");
+            throw new IntermediarySellException("Dieses Produkt hat der Händler nicht auf Lager!");
         }
 
         if (intermediary.Inventory[product.Id] < quantity) {
-            throw new ArgumentOutOfRangeException(
-                nameof(quantity),
-                "Die angefragte Menge übersteigt den vorhandenen Lagerbestand!"
-            );
+            throw new IntermediarySellException("Die angefragte Menge übersteigt den vorhandenen Lagerbestand!");
         }
 
         var productSellingRevenue = product.SellingPrice * quantity;
@@ -60,8 +57,7 @@ public static class IntermediaryService {
     internal static void ExpandStorage(Intermediary intermediary, int storageExpansionSize) {
         var storageExpansionCosts = s_storagePricePerUnit * storageExpansionSize;
         if (intermediary.Capital < storageExpansionCosts) {
-            throw new ArgumentOutOfRangeException(
-                nameof(storageExpansionSize),
+            throw new IntermediaryExpandStorageException(
                 $"Es ist nicht genug Kapital vorhanden, um {storageExpansionSize:n0} Lagereinheiten zu kaufen!"
             );
         }
@@ -96,6 +92,7 @@ public static class IntermediaryService {
         }
 
         intermediary.TakenOutLoan = new Loan(amount, interestRate, day);
+        intermediary.TransactionsOfTheDay.Add(new Transaction(amount, TransactionType.TakeLoan));
         intermediary.Capital += amount;
     }
 
@@ -103,7 +100,7 @@ public static class IntermediaryService {
         if (intermediary.TakenOutLoan == null || intermediary.TakenOutLoan.DayOfRepayment != currentDay) return;
         var amountToBeRepaid = intermediary.TakenOutLoan.Amount * (100 + intermediary.TakenOutLoan.InterestRate) / 100;
         intermediary.Capital -= amountToBeRepaid;
-        intermediary.TransactionsOfTheDay.Add(new Transaction(amountToBeRepaid, TransactionType.Loan));
+        intermediary.TransactionsOfTheDay.Add(new Transaction(amountToBeRepaid, TransactionType.PayLoan));
         intermediary.TakenOutLoan = null;
     }
 }

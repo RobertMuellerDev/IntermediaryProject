@@ -24,6 +24,18 @@ namespace IntermediaryProject.Exceptions {
     }
 
     [Serializable]
+    public class IntermediarySellException : Exception {
+        public IntermediarySellException() {
+        }
+
+        public IntermediarySellException(string message) : base(message) {
+        }
+
+        public IntermediarySellException(string message, Exception inner) : base(message, inner) {
+        }
+    }
+
+    [Serializable]
     public class IntermediaryLoanException : Exception {
         public IntermediaryLoanException() {
         }
@@ -35,6 +47,19 @@ namespace IntermediaryProject.Exceptions {
         }
     }
 
+    [Serializable]
+    public class IntermediaryExpandStorageException : Exception {
+        public IntermediaryExpandStorageException() {
+        }
+
+        public IntermediaryExpandStorageException(string message) : base(message) {
+        }
+
+        public IntermediaryExpandStorageException(string message, Exception inner) : base(message, inner) {
+        }
+    }
+
+    [Serializable]
     public class EndGameException : Exception {
         public EndGameException() {
         }

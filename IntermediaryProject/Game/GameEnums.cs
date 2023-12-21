@@ -39,6 +39,7 @@ namespace IntermediaryProject {
         Shopping,
         Selling,
         Storage,
-        Loan
+        PayLoan,
+        TakeLoan
     }
 }

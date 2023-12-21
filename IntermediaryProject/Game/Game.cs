@@ -56,8 +56,8 @@ namespace IntermediaryProject {
             var reportData = Util.PrepareReportData(_currentIntermediary);
             _ui.PrintReport(reportData);
             while (_ui.ReadKey()
-                      .Key !=
-                   ConsoleKey.Enter) {
+                      .Key
+                   != ConsoleKey.Enter) {
             }
 
             _currentIntermediary.TransactionsOfTheDay.Clear();
@@ -73,13 +73,7 @@ namespace IntermediaryProject {
             RotateFirstIntermediaryToTheEnd();
             ExecuteProductChangeDayOperations();
             ChargeStorageOperatingCosts();
-            SettleLoans();
-        }
-
-        private void SettleLoans() {
-            foreach (var intermediary in _intermediaries) {
-                IntermediaryService.PayBackLoan(intermediary, _day);
-            }
+            _gameLogic.SettleLoans(_intermediaries, _day);
         }
 
         private bool IsGameOver() {
@@ -159,9 +153,9 @@ namespace IntermediaryProject {
             _ui.Write("Wie viel Zwischenhändler nehmen teil?: ");
             while (true) {
                 var input = _ui.ReadLine();
-                if (string.IsNullOrWhiteSpace(input) ||
-                    !int.TryParse(input, out _numberOfIntermediaries) ||
-                    _numberOfIntermediaries <= 0) {
+                if (string.IsNullOrWhiteSpace(input)
+                    || !int.TryParse(input, out _numberOfIntermediaries)
+                    || _numberOfIntermediaries <= 0) {
                     _ui.Write("Geben Sie eine positive Zahl ein: ");
                     continue;
                 }
@@ -174,9 +168,9 @@ namespace IntermediaryProject {
             _ui.Write("Wie viele Tage wollen Sie spielen?: ");
             while (true) {
                 var input = _ui.ReadLine();
-                if (string.IsNullOrWhiteSpace(input) ||
-                    !int.TryParse(input, out _numberOfDaysToPlay) ||
-                    _numberOfDaysToPlay <= 0) {
+                if (string.IsNullOrWhiteSpace(input)
+                    || !int.TryParse(input, out _numberOfDaysToPlay)
+                    || _numberOfDaysToPlay <= 0) {
                     _ui.Write("Geben Sie eine positive Zahl ein: ");
                     continue;
                 }

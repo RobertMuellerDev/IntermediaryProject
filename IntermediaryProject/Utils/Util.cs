@@ -7,9 +7,9 @@ namespace IntermediaryProject.Utils {
         internal static string ReadFileToString(string fileName) {
             var basePath =
                 AppDomain.CurrentDomain.BaseDirectory[..AppDomain.CurrentDomain.BaseDirectory.IndexOf(
-                    "bin",
-                    StringComparison.Ordinal
-                )];
+                                                          "bin",
+                                                          StringComparison.Ordinal
+                                                      )];
             var path = basePath + fileName;
 
             using var streamReader = new StreamReader(path, Encoding.UTF8);
@@ -74,15 +74,22 @@ namespace IntermediaryProject.Utils {
                 intermediary.TransactionsOfTheDay,
                 TransactionType.Storage
             );
-            var loanCosts = 0m;
-            if (HasPaidBackALoan(intermediary.TransactionsOfTheDay)) {
-                loanCosts = CalculateTotalAmountOfTheDayForTransactionType(
-                    intermediary.TransactionsOfTheDay,
-                    TransactionType.Loan
-                );
-            }
+            var loanCosts = CalculateTotalAmountOfTheDayForTransactionType(
+                intermediary.TransactionsOfTheDay,
+                TransactionType.PayLoan
+            );
 
-            var previousCapital = intermediary.Capital + shoppingCosts - sellingRevenue + storageCosts + loanCosts;
+            var takenOutLoan = CalculateTotalAmountOfTheDayForTransactionType(
+                intermediary.TransactionsOfTheDay,
+                TransactionType.TakeLoan
+            );
+
+            var previousCapital = intermediary.Capital
+                                  - takenOutLoan
+                                  + shoppingCosts
+                                  - sellingRevenue
+                                  + storageCosts
+                                  + loanCosts;
             return new ReportData(
                 shoppingCosts,
                 sellingRevenue,
@@ -91,10 +98,6 @@ namespace IntermediaryProject.Utils {
                 intermediary.Capital,
                 loanCosts
             );
-        }
-
-        private static bool HasPaidBackALoan(IEnumerable<Transaction> transactionsOfThePreviousDay) {
-            return transactionsOfThePreviousDay.Any(transaction => transaction.Type == TransactionType.Loan);
         }
 
         public static bool IsBankrupt(Intermediary intermediary) {

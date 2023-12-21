@@ -26,4 +26,12 @@ static class BusinessLogic {
             day
         );
     }
+
+    public static void PayBackLoan(Intermediary intermediary, int day) {
+        IntermediaryService.PayBackLoan(intermediary, day);
+    }
+
+    public static void ExpandStorage(Intermediary intermediary, int size) {
+        IntermediaryService.ExpandStorage(intermediary, size);
+    }
 }

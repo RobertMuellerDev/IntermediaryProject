@@ -39,7 +39,7 @@ class GameLogic {
     private void StartLoanTakeout(Intermediary intermediary, int day) {
         var loanOptions = GetLoanOptions();
         _ui.PrintLoanOptions(loanOptions);
-        do {
+        while (true) {
             var input = _ui.ReadAndValidateStringFromReadLine("Wählen Sie einen gültigen Kreditbetrag aus: ");
             if (input.ToLower()[0] == 'z') {
                 break;
@@ -52,10 +52,11 @@ class GameLogic {
             try {
                 BusinessLogic.TakeOutLoan(intermediary, loanOptions[parsedValue], day);
             } catch (IntermediaryLoanException e) {
-                Console.WriteLine(e);
-                break;
+                _ui.WriteLine(e.Message);
             }
-        } while (true);
+
+            break;
+        }
     }
 
     private static Dictionary<int, (int amount, int interest)> GetLoanOptions() {
@@ -74,8 +75,8 @@ class GameLogic {
             if (!int.TryParse(size, out var parsedSize)) continue;
             if (parsedSize > 0) {
                 try {
-                    IntermediaryService.ExpandStorage(intermediary, parsedSize);
-                } catch (ArgumentOutOfRangeException e) {
+                    BusinessLogic.ExpandStorage(intermediary, parsedSize);
+                } catch (IntermediaryExpandStorageException e) {
                     _ui.WriteLine(e.Message);
                 }
             }
@@ -92,17 +93,16 @@ class GameLogic {
                 break;
             }
 
-            if (!byte.TryParse((string?)input, out var parsedId) ||
-                parsedId <= 0 ||
-                !intermediary.Inventory.ContainsKey(parsedId))
+            if (!byte.TryParse((string?)input, out var parsedId)
+                || parsedId <= 0
+                || !intermediary.Inventory.ContainsKey(parsedId))
                 continue;
             var quantity = AskHowMuchOfSelectedProductIsToBeSold(products[parsedId - 1].Name);
-            if (quantity > 0) {
-                try {
-                    BusinessLogic.SellSelectedQuantityOfProduct(intermediary, products[parsedId - 1], quantity);
-                } catch (ArgumentOutOfRangeException e) {
-                    _ui.WriteLine(e.Message);
-                }
+            if (quantity <= 0) continue;
+            try {
+                BusinessLogic.SellSelectedQuantityOfProduct(intermediary, products[parsedId - 1], quantity);
+            } catch (IntermediarySellException e) {
+                _ui.WriteLine(e.Message);
             }
         } while (true);
     }
@@ -175,5 +175,11 @@ class GameLogic {
         } while (selectedAction is null);
 
         return (GameAction)selectedAction;
+    }
+
+    public void SettleLoans(List<Intermediary> intermediaries, int day) {
+        foreach (var intermediary in intermediaries) {
+            BusinessLogic.PayBackLoan(intermediary, day);
+        }
     }
 }

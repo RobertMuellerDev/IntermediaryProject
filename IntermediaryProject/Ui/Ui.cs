@@ -146,7 +146,7 @@ namespace IntermediaryProject {
             Console.WriteLine("Rangliste:");
             for (int i = 0; i < intermediaries.Count; i++) {
                 Console.WriteLine(
-                    $"{i + 1}. Platz: {intermediaries[i].Name} von {intermediaries[i].CompanyName} mit ${intermediaries[i].Capital:C0}"
+                    $"{i + 1}. Platz: {intermediaries[i].Name} von {intermediaries[i].CompanyName} mit ${intermediaries[i].Capital:n2}"
                 );
             }
         }
@@ -163,13 +163,14 @@ namespace IntermediaryProject {
             }
 
             Console.WriteLine("Aktueller Kontostand: {0:n2}", reportData.CurrentCapital);
-            Console.Write("Zum Bestätigen Enter drücken.");
+            Console.Write("\nZum Bestätigen Enter drücken.");
         }
 
         public void PrintLoanOptions(Dictionary<int, (int amount, int interest)> loanOptions) {
+            Console.WriteLine();
             Console.WriteLine("Wählen Sie den Kreditbetrag aus, welchen Sie aufnehmen möchten.");
             foreach (var (loanKey, loanOption) in loanOptions) {
-                Console.WriteLine($"{loanKey}.) {loanOption.amount:n2} mit {loanOption.interest}% Zinsen");
+                Console.WriteLine($"{loanKey}.) {loanOption.amount:n0} mit {loanOption.interest}% Zinsen");
             }
 
             Console.WriteLine("\nz) Zurück");
